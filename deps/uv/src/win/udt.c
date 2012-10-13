@@ -9,7 +9,7 @@
 #include "req-inl.h"
 #include "udtc.h" // udt head file
 
-#define UDT_DEBUG 1
+///#define UDT_DEBUG 1
 
 /*
  * Threshold of active udt streams for which to preallocate udt read buffers.
@@ -1481,26 +1481,26 @@ void uv_process_udt_read_req(uv_loop_t* loop, uv_udt_t* handle,
 			buf = handle->alloc_cb((uv_handle_t*) handle, 65536);
 			assert(buf.len > 0);
 
-			rcnt = 0;
-			while (rcnt < buf.len) {
-				bytes = udt_recv(handle->udtfd, buf.base+rcnt, buf.len-rcnt, 0);;
-				if (bytes > 0) {
+			bytes = 0;
+			while (bytes < buf.len) {
+				rcnt = udt_recv(handle->udtfd, buf.base+bytes, buf.len-bytes, 0);;
+				if (rcnt > 0) {
 #if 0
 					/* Successful read */
-					handle->read_cb((uv_stream_t*)handle, bytes, buf);
+					handle->read_cb((uv_stream_t*)handle, rcnt, buf);
 					/* Read again only if bytes == buf.len */
-					if (bytes < buf.len) {
+					if (rcnt < buf.len) {
 						break;
 					}
 #else
-					rcnt += bytes;
+					bytes += rcnt;
 #endif
 				} else {
 					err = uv_translate_udt_error();
 					if (err == WSAEWOULDBLOCK) {
 						/* Read buffer was completely empty, report a 0-byte read. */
-						if (rcnt == 0) uv__set_sys_error(loop, WSAEWOULDBLOCK);
-						handle->read_cb((uv_stream_t*)handle, rcnt, buf);
+						uv__set_sys_error(loop, WSAEWOULDBLOCK);
+						handle->read_cb((uv_stream_t*)handle, bytes, buf);
 					} else {
 						/* Ouch! serious error. */
 						handle->flags &= ~UV_HANDLE_READING;
