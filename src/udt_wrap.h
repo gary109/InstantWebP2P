@@ -1,9 +1,6 @@
-// Copyright Road iSystems, Inc, 2007-2012.
+// Copyright tom zhou<zs68j2ee@gmail.com>, 2012.
 //
-// udt_wrap.h, ported from udt_wrap.h with udt transport binding
-//
-// Created on: Oct 01, 2012
-//      Author: tom zhou, zs68j2ee@gmail.com
+// udt_wrap.h, ported from tcp_wrap.h with udt transport binding
 //
 
 // Copyright Joyent, Inc. and other Node contributors.
