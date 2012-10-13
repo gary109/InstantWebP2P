@@ -1,6 +1,9 @@
 var http = require('http');
 var httpp = require('httpp');
 
+var https = require('https');
+var httpps = require('httpps');
+
 http.createServer(function (request, response) {
   response.writeHead(200, {'Content-Type': 'text/plain'});
   response.end('Hello, iWebPP:\n\tThis is Tom calling to Jagua from TCP.:)\n');
