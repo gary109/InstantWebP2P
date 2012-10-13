@@ -68,8 +68,11 @@ static Persistent<String> onconnection_sym;
 
 typedef class ReqWrap<uv_connect_t> ConnectWrap;
 
-Local<Object> AddressToJS(const sockaddr* addr);
-
+#ifdef _WIN32
+Local<Object> AddressToJS(const sockaddr* addr, const SOCKET fd);
+#else
+Local<Object> AddressToJS(const sockaddr* addr, const int fd);
+#endif
 
 Local<Object> TCPWrap::Instantiate() {
   // If this assert fire then process.binding('tcp_wrap') hasn't been
@@ -185,7 +188,11 @@ Handle<Value> TCPWrap::GetSockName(const Arguments& args) {
   }
 
   const sockaddr* addr = reinterpret_cast<const sockaddr*>(&address);
-  return scope.Close(AddressToJS(addr));
+ #ifdef _WIN32
+  return scope.Close(AddressToJS(addr, wrap->handle_.socket));
+ #else
+  return scope.Close(AddressToJS(addr, wrap->handle_.fd));
+ #endif
 }
 
 
@@ -206,7 +213,11 @@ Handle<Value> TCPWrap::GetPeerName(const Arguments& args) {
   }
 
   const sockaddr* addr = reinterpret_cast<const sockaddr*>(&address);
-  return scope.Close(AddressToJS(addr));
+#ifdef _WIN32
+  return scope.Close(AddressToJS(addr, INVALID_SOCKET));
+#else
+  return scope.Close(AddressToJS(addr, -1));
+#endif
 }
 
 
@@ -429,12 +440,17 @@ Handle<Value> TCPWrap::Connect6(const Arguments& args) {
 
 
 // also used by udp_wrap.cc
-Local<Object> AddressToJS(const sockaddr* addr) {
+#ifdef _WIN32
+Local<Object> AddressToJS(const sockaddr* addr, const SOCKET fd) {
+#else
+Local<Object> AddressToJS(const sockaddr* addr, const int fd) {
+#endif
   static Persistent<String> address_sym;
   static Persistent<String> family_sym;
   static Persistent<String> port_sym;
   static Persistent<String> ipv4_sym;
   static Persistent<String> ipv6_sym;
+  static Persistent<String> fd_sym;
 
   HandleScope scope;
   char ip[INET6_ADDRSTRLEN];
@@ -448,6 +464,7 @@ Local<Object> AddressToJS(const sockaddr* addr) {
     port_sym = NODE_PSYMBOL("port");
     ipv4_sym = NODE_PSYMBOL("IPv4");
     ipv6_sym = NODE_PSYMBOL("IPv6");
+    fd_sym = NODE_PSYMBOL("fd");
   }
 
   Local<Object> info = Object::New();
@@ -460,6 +477,11 @@ Local<Object> AddressToJS(const sockaddr* addr) {
     info->Set(address_sym, String::New(ip));
     info->Set(family_sym, ipv6_sym);
     info->Set(port_sym, Integer::New(port));
+#ifdef _WIN32
+    if (fd != INVALID_SOCKET) info->Set(fd_sym, Integer::New(fd));
+#else
+    if (fd != -1) info->Set(fd_sym, Integer::New(fd));
+#endif
     break;
 
   case AF_INET:
@@ -469,6 +491,11 @@ Local<Object> AddressToJS(const sockaddr* addr) {
     info->Set(address_sym, String::New(ip));
     info->Set(family_sym, ipv4_sym);
     info->Set(port_sym, Integer::New(port));
+#ifdef _WIN32
+    if (fd != INVALID_SOCKET) info->Set(fd_sym, Integer::New(fd));
+#else
+    if (fd != -1) info->Set(fd_sym, Integer::New(fd));
+#endif
     break;
 
   default:

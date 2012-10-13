@@ -53,7 +53,11 @@ namespace node {
 typedef ReqWrap<uv_udp_send_t> SendWrap;
 
 // see tcp_wrap.cc
-Local<Object> AddressToJS(const sockaddr* addr);
+#ifdef _WIN32
+Local<Object> AddressToJS(const sockaddr* addr, const SOCKET fd);
+#else
+Local<Object> AddressToJS(const sockaddr* addr, const int fd);
+#endif
 
 static Persistent<String> buffer_sym;
 static Persistent<String> oncomplete_sym;
@@ -327,7 +331,11 @@ Handle<Value> UDPWrap::GetSockName(const Arguments& args) {
   }
 
   const sockaddr* addr = reinterpret_cast<const sockaddr*>(&address);
-  return scope.Close(AddressToJS(addr));
+#ifdef _WIN32
+  return scope.Close(AddressToJS(addr, wrap->handle_.socket));
+#else
+  return scope.Close(AddressToJS(addr, wrap->handle_.fd));
+#endif
 }
 
 
@@ -391,7 +399,11 @@ void UDPWrap::OnRecv(uv_udp_t* handle,
     slab,
     Integer::NewFromUnsigned(buf.base - Buffer::Data(slab)),
     Integer::NewFromUnsigned(nread),
-    AddressToJS(addr)
+#ifdef _WIN32
+    AddressToJS(addr, INVALID_SOCKET)
+#else
+    AddressToJS(addr, -1)
+#endif
   };
   MakeCallback(wrap->object_, onmessage_sym, ARRAY_SIZE(argv), argv);
 }
