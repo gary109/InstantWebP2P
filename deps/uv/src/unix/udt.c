@@ -12,7 +12,7 @@
 #include <errno.h>
 
 
-#define UDT_DEBUG 1
+///#define UDT_DEBUG 1
 
 int uv_udt_init(uv_loop_t* loop, uv_udt_t* udt) {
 	// insure startup UDT
@@ -494,6 +494,7 @@ int uv_translate_udt_error() {
 
 	//case ENETUNREACH: return UV_ENETUNREACH;
 
+	//case ERROR_BROKEN_PIPE: return UV_EOF;
 	case UDT_ECONNLOST: return errno = ECONNABORTED;
 
 	//case ELOOP: return UV_ELOOP;
@@ -559,11 +560,11 @@ int udt__accept(int sockfd) {
 		peerfd = -1;
 	}
 
-	char clienthost[NI_MAXHOST];
-	char clientservice[NI_MAXSERV];
+	///char clienthost[NI_MAXHOST];
+	///char clientservice[NI_MAXSERV];
 
-	getnameinfo((struct sockaddr*)&saddr, sizeof saddr, clienthost, sizeof(clienthost), clientservice, sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
-	fprintf(stdout, "new connection: %s:%s\n", clienthost, clientservice);
+	///getnameinfo((struct sockaddr*)&saddr, sizeof saddr, clienthost, sizeof(clienthost), clientservice, sizeof(clientservice), NI_NUMERICHOST|NI_NUMERICSERV);
+	///fprintf(stdout, "new connection: %s:%s\n", clienthost, clientservice);
 
 	return peerfd;
 }

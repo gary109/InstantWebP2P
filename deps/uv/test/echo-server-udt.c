@@ -33,7 +33,7 @@ static uv_loop_t* loop;
 
 static int server_closed;
 static stream_type serverType;
-static uv_udt_t udtServer;
+static uv_udt_t udtServer[1];
 static uv_handle_t* server;
 
 static void after_write(uv_write_t* req, int status);
@@ -45,7 +45,7 @@ static void on_connection(uv_stream_t*, int status);
 
 static void after_write(uv_write_t* req, int status) {
   write_req_t* wr;
-
+  ///printf("%s.%d\n", __FUNCTION__, __LINE__);
   if (status) {
     uv_err_t err = uv_last_error(loop);
     fprintf(stderr, "uv_write error: %s\n", uv_strerror(err));
@@ -61,6 +61,7 @@ static void after_write(uv_write_t* req, int status) {
 
 
 static void after_shutdown(uv_shutdown_t* req, int status) {
+	///printf("%s.%d\n", __FUNCTION__, __LINE__);
   uv_close((uv_handle_t*)req->handle, on_close);
   free(req);
 }
@@ -71,9 +72,14 @@ static void after_read(uv_stream_t* handle, ssize_t nread, uv_buf_t buf) {
   write_req_t *wr;
   uv_shutdown_t* req;
 
+  ///printf("%s.%d\n", __FUNCTION__, __LINE__);
   if (nread < 0) {
+	  ///printf("%s.%d\n", __FUNCTION__, __LINE__);
+
 	  /* Error or EOF */
 	  if (uv_last_error(loop).code == UV_EOF) {
+		  ///printf("%s.%d\n", __FUNCTION__, __LINE__);
+
 		  if (buf.base) {
 			  free(buf.base);
 		  }
@@ -81,6 +87,8 @@ static void after_read(uv_stream_t* handle, ssize_t nread, uv_buf_t buf) {
 		  req = (uv_shutdown_t*) malloc(sizeof *req);
 		  uv_shutdown(req, handle, after_shutdown);
 	  } else {
+		  ///printf("%s.%d\n", __FUNCTION__, __LINE__);
+
 		  if (buf.base) {
 			  free(buf.base);
 		  }
@@ -129,6 +137,7 @@ static void after_read(uv_stream_t* handle, ssize_t nread, uv_buf_t buf) {
 
 
 static void on_close(uv_handle_t* peer) {
+	///printf("%s.%d\n", __FUNCTION__, __LINE__);
   free(peer);
 }
 
@@ -179,14 +188,14 @@ static void on_connection(uv_stream_t* server, int status) {
   stream->data = server;
 
   r = uv_accept(server, stream);
-  ///ASSERT(r == 0);
+  ASSERT(r == 0);
   if (r) {
 	  free(stream);
 	  return;
   }
 
   r = uv_read_start(stream, echo_alloc, after_read);
-  ///ASSERT(r == 0);
+  ASSERT(r == 0);
   if (r) {
 	  free(stream);
 	  return;
@@ -195,7 +204,7 @@ static void on_connection(uv_stream_t* server, int status) {
 
 
 static void on_server_close(uv_handle_t* handle) {
-  printf("going on %s:%d\n", __FUNCTION__, __LINE__);
+  ///printf("going on %s:%d\n", __FUNCTION__, __LINE__);
   ASSERT(handle == server);
 }
 
@@ -235,35 +244,39 @@ static int tcp6_echo_start(int port) {
 #endif
 
 static int udt4_echo_start(int port) {
-  struct sockaddr_in addr = uv_ip4_addr("0.0.0.0", port);
-  int r;
+	struct sockaddr_in addr;
+	int r;
+	int i;
 
-  server = (uv_handle_t*)&udtServer;
-  serverType = UDT;
+	serverType = UDT;
+	for (i = 0; i < (sizeof(udtServer) / sizeof(udtServer[0])); i ++) {
+		addr = uv_ip4_addr("0.0.0.0", port+i);
+		server = (uv_handle_t*)&udtServer[i];
 
-  r = uv_udt_init(loop, &udtServer);
-  if (r) {
-    /* TODO: Error codes */
-    fprintf(stderr, "Socket creation error\n");
-    return 1;
-  }
+		r = uv_udt_init(loop, &udtServer[i]);
+		if (r) {
+			/* TODO: Error codes */
+			fprintf(stderr, "Socket creation error\n");
+			return 1;
+		}
 
-  r = uv_udt_bind(&udtServer, addr);
-  if (r) {
-    /* TODO: Error codes */
-    fprintf(stderr, "Bind error\n");
-    return 1;
-  }
+		r = uv_udt_bind(&udtServer[i], addr);
+		if (r) {
+			/* TODO: Error codes */
+			fprintf(stderr, "Bind error\n");
+			return 1;
+		}
 
-  r = uv_listen((uv_stream_t*)&udtServer, SOMAXCONN, on_connection);
-  if (r) {
-    /* TODO: Error codes */
-    fprintf(stderr, "Listen error %s\n",
-        uv_err_name(uv_last_error(loop)));
-    return 1;
-  }
+		r = uv_listen((uv_stream_t*)&udtServer[i], SOMAXCONN, on_connection);
+		if (r) {
+			/* TODO: Error codes */
+			fprintf(stderr, "Listen error %s\n",
+					uv_err_name(uv_last_error(loop)));
+			return 1;
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
 int main(int argc, char * argv [])

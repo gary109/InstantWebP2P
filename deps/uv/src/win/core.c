@@ -36,7 +36,7 @@
 /* The only event loop we support right now */
 static uv_loop_t uv_default_loop_;
 
-/* uv_once intialization guards */
+/* uv_once initialization guards */
 static uv_once_t uv_init_guard_ = UV_ONCE_INIT;
 static uv_once_t uv_default_loop_init_guard_ = UV_ONCE_INIT;
 
@@ -55,7 +55,9 @@ static void uv_init(void) {
 
   /* Tell the CRT to not exit the application when an invalid parameter is */
   /* passed. The main issue is that invalid FDs will trigger this behavior. */
+#ifdef _WRITE_ABORT_MSG
   _set_invalid_parameter_handler(uv__crt_invalid_parameter_handler);
+#endif
 
   /* Fetch winapi function pointers. This must be done first because other */
   /* intialization code might need these function pointers to be loaded. */
@@ -232,7 +234,8 @@ static void uv_poll_ex(uv_loop_t* loop, int block) {
       req = uv_overlapped_to_req(overlappeds[i].lpOverlapped);
       uv_insert_pending_req(loop, req);
     }
-  } else if (GetLastError() != WAIT_TIMEOUT) {
+  } else if ((GetLastError() != WAIT_TIMEOUT) &&
+		     (GetLastError() != ERROR_ABANDONED_WAIT_0)) {
     /* Serious error */
     uv_fatal_error(GetLastError(), "GetQueuedCompletionStatusEx");
   }
@@ -277,8 +280,11 @@ static void uv_poll_ex(uv_loop_t* loop, int block) {
   }
 
 
+////////////////////////////////////////////////////////////////////////////////
+// !!! use uv_poll to avoid polling stuck with udt -
+// by tom zhou(zs68j2ee@gmail.com),2012.10.18.
 int uv_run_once(uv_loop_t* loop) {
-  if (pGetQueuedCompletionStatusEx) {
+  if (0/*pGetQueuedCompletionStatusEx*/) {
     UV_LOOP_ONCE(loop, uv_poll_ex);
   } else {
     UV_LOOP_ONCE(loop, uv_poll);
@@ -288,7 +294,7 @@ int uv_run_once(uv_loop_t* loop) {
 
 
 int uv_run(uv_loop_t* loop) {
-  if (pGetQueuedCompletionStatusEx) {
+  if (0/*pGetQueuedCompletionStatusEx*/) {
     UV_LOOP(loop, uv_poll_ex);
   } else {
     UV_LOOP(loop, uv_poll);
@@ -297,3 +303,4 @@ int uv_run(uv_loop_t* loop) {
   assert(!UV_LOOP_ALIVE((loop)));
   return 0;
 }
+////////////////////////////////////////////////////////////////////////////////////
