@@ -6,6 +6,8 @@ It's simple to use node-httpp:
 1. replace net with udt, http with httpp, https with httpps when require net/http/httpps modules.
 2. well done.
 
+To build it manually, clone the repository and checkout v0.8-httpp branch firstly, then do steps as below.
+
 Evented I/O for V8 javascript. [![Build Status](https://secure.travis-ci.org/joyent/node.png)](http://travis-ci.org/joyent/node)
 ===
 
