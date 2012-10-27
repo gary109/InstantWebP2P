@@ -8,6 +8,9 @@ It's simple to use node-httpp:
 
 To build it manually, clone the repository and checkout v0.8-httpp branch firstly, then do steps as below.
 
+third-party source:
+UDT4 - http://udt.sourceforge.net/
+
 Evented I/O for V8 javascript. [![Build Status](https://secure.travis-ci.org/joyent/node.png)](http://travis-ci.org/joyent/node)
 ===
 
