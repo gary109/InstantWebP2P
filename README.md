@@ -4,15 +4,25 @@ It consists of four modules: udt.js, httpp.js, udts.js, httpps.js, that keeps th
 
 It's simple to use node-httpp:
 1. replace net with udt, http with httpp, tls with udts, https with httpps when require net/http/tls/httpps modules.
-2. well done.
+2. do the rest as http.
 
 To build it manually, clone the repository and checkout v0.8-httpp branch firstly, then do steps as below.
 
 third-party source:
 UDT4 - http://udt.sourceforge.net/
 
+discussion group:
+https://groups.google.com/d/forum/iwebpp
+
+
 Evented I/O for V8 javascript. [![Build Status](https://secure.travis-ci.org/joyent/node.png)](http://travis-ci.org/joyent/node)
 ===
+
+To checkout the sourcecode:
+
+git clone https://github.com/InstantWebP2P/node-httpp.git
+git checkout v0.8-httpp
+
 
 ### To build:
 
