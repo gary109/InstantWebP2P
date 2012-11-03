@@ -505,7 +505,7 @@ upload a file with a POST request, then write to the `ClientRequest` object.
 Example:
 
     var options = {
-      host: 'www.google.com',
+      hostname: 'www.google.com',
       port: 80,
       path: '/upload',
       method: 'POST'
@@ -594,7 +594,7 @@ pool you can do something along the lines of:
 
 Alternatively, you could just opt out of pooling entirely using `agent:false`:
 
-    http.get({host:'localhost', port:80, path:'/', agent:false}, function (res) {
+    http.get({hostname:'localhost', port:80, path:'/', agent:false}, function (res) {
       // Do stuff
     })
 
@@ -719,7 +719,7 @@ A client server pair that show you how to listen for the `connect` event.
       // make a request to a tunneling proxy
       var options = {
         port: 1337,
-        host: '127.0.0.1',
+        hostname: '127.0.0.1',
         method: 'CONNECT',
         path: 'www.google.com:80'
       };
@@ -776,7 +776,7 @@ A client server pair that show you how to listen for the `upgrade` event.
       // make a request
       var options = {
         port: 1337,
-        host: '127.0.0.1',
+        hostname: '127.0.0.1',
         headers: {
           'Connection': 'Upgrade',
           'Upgrade': 'websocket'
@@ -866,16 +866,23 @@ Note that the __data will be lost__ if there is no listener when a
 
 `function () { }`
 
-Emitted exactly once for each message. No arguments. After
-emitted no other events will be emitted on the response.
+Emitted exactly once for each response. After that, no more `'data'` events
+will be emitted on the response.
+
 
 ### Event: 'close'
 
-`function (err) { }`
+`function () { }`
 
 Indicates that the underlaying connection was terminated before
-`end` event was emitted.
-See [http.ServerRequest][]'s `'close'` event for more information.
+`response.end()` was called or able to flush.
+
+Just like `'end'`, this event occurs only once per response, and no more
+`'data'` events will fire afterwards. See [http.ServerResponse][]'s `'close'`
+event for more information.
+
+Note: `'close'` can fire after `'end'`, but not vice versa.
+
 
 ### response.statusCode
 
