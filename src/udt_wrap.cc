@@ -254,23 +254,6 @@ Handle<Value> UDTWrap::SetKeepAlive(const Arguments& args) {
 }
 
 
-#ifdef _WIN32
-Handle<Value> UDTWrap::SetSimultaneousAccepts(const Arguments& args) {
-  HandleScope scope;
-
-  UNWRAP(UDTWrap)
-
-  bool enable = args[0]->BooleanValue();
-
-  int r = uv_udt_simultaneous_accepts(&wrap->handle_, enable ? 1 : 0);
-  if (r)
-    SetErrno(uv_last_error(uv_default_loop()));
-
-  return Undefined();
-}
-#endif
-
-
 Handle<Value> UDTWrap::Bind(const Arguments& args) {
   HandleScope scope;
 
@@ -484,7 +467,6 @@ Handle<Value> UDTWrap::SetSocketRendez(const Arguments& args) {
 }
 
 
-// also used by udp_wrap.cc
 #ifdef _WIN32
 static Local<Object> AddressToJS(const sockaddr* addr, const SOCKET fd, const int udtfd) {
 #else

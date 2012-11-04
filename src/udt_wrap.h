@@ -60,10 +60,6 @@ class UDTWrap : public StreamWrap {
   // bind socket in existing udp/fd
   static v8::Handle<v8::Value> Bindfd(const v8::Arguments& args);
 
-#ifdef _WIN32
-  static v8::Handle<v8::Value> SetSimultaneousAccepts(const v8::Arguments& args);
-#endif
-
   static void OnConnection(uv_stream_t* handle, int status);
   static void AfterConnect(uv_connect_t* req, int status);
 
