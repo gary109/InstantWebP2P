@@ -216,7 +216,11 @@ Handle<Value> UDTWrap::GetPeerName(const Arguments& args) {
   }
 
   const sockaddr* addr = reinterpret_cast<const sockaddr*>(&address);
+#ifdef _WIN32
+  return scope.Close(AddressToJS(addr, INVALID_SOCKET, -1));
+#else
   return scope.Close(AddressToJS(addr, -1, -1));
+#endif
 }
 
 
