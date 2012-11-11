@@ -1641,6 +1641,7 @@ v8::Handle<v8::Value> UVCounters(const v8::Arguments& args) {
   setc(handle_init)
   setc(stream_init)
   setc(tcp_init)
+  setc(udt_init)
   setc(udp_init)
   setc(pipe_init)
   setc(tty_init)
