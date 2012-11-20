@@ -1,13 +1,24 @@
 var httpp = require('httpp');
-var srv = httpp.createServer(function(req, res){
-  res.end('Hi, just say hi to you over UDP ...\n');
-});
-srv.listen(51688);
-console.log('HTTPP server listing on UDP port 51688');
+var http = require('http');
+var maxSrvs = 10;
 
-var srv1 = httpp.createServer(function(req, res){
-  res.end('Hi, just say hi to you over UDP ...\n');
-});
-srv1.listen(51886);
-console.log('HTTPP server listing on UDP port 51886');
+
+// concurrent servers
+for (var i = 0; i < maxSrvs; i ++) {
+  var port = 51688+i;
+
+  // httpp servers
+  var srv = httpp.createServer(function(req, res){
+    res.end('Hi, just say hi to you over UDP ...\n');
+  });
+  srv.listen(port);
+  console.log('HTTPP server listing on UDP port '+port);
+
+  // http servers
+  var srv1 = http.createServer(function(req, res){
+    res.end('Hi, just say hi to you over TCP ...\n');
+  });
+  srv1.listen(port);
+  console.log('HTTP server listing on TCP port '+port);
+}
 

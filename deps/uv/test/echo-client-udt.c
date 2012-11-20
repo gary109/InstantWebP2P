@@ -26,9 +26,12 @@
 #include <stdio.h>
 #include <string.h> /* strlen */
 
-/* Run the benchmark for this many ms */
-#define TIME 5000
 
+#define SERVER_MAX_NUM 10
+#define CLIENT_MAX_NUM 20
+
+/* Run the benchmark for this many ms */
+#define TIME 20000
 
 typedef struct {
   int pongs;
@@ -72,8 +75,8 @@ static uv_buf_t buf_alloc(uv_handle_t* udt, size_t size) {
 }
 
 
-static void buf_free(uv_buf_t uv_buf_t) {
-  buf_t* ab = (buf_t*) (uv_buf_t.base - sizeof *ab);
+static void buf_free(uv_buf_t buf) {
+  buf_t* ab = (buf_t*) (buf.base - sizeof *ab);
 
   ab->next = buf_freelist;
   buf_freelist = ab;
@@ -123,7 +126,7 @@ static void pinger_shutdown_cb(uv_shutdown_t* req, int status) {
    * The close callback has not been triggered yet. We must wait for EOF
    * until we close the connection.
    */
-  ASSERT(completed_pingers == 0);
+  ///ASSERT(completed_pingers == 0);
 }
 
 
@@ -131,17 +134,19 @@ static void pinger_read_cb(uv_stream_t* udt, ssize_t nread, uv_buf_t buf) {
   ssize_t i;
   pinger_t* pinger;
 
+  ///printf("%s.%d,pinger_read_cb,udtfd@%d\n", __FUNCTION__, __LINE__, ((uv_udt_t*)udt)->udtfd);
+
   pinger = (pinger_t*)udt->data;
 
   if (nread < 0) {
-    ///printf("pinger read < 0\n");
+    ///printf("%s.%d,pinger_read_cb,udtfd@%d\n", __FUNCTION__, __LINE__, ((uv_udt_t*)udt)->udtfd);
     ///ASSERT(uv_last_error(loop).code == UV_EOF);
 
     if (buf.base) {
       buf_free(buf);
     }
 
-    ASSERT(pinger_shutdown_cb_called == 1);
+    ///ASSERT(pinger_shutdown_cb_called == 1);
     uv_close((uv_handle_t*)udt, pinger_close_cb);
 
     return;
@@ -205,18 +210,23 @@ static void pinger_new(int port) {
 
 int main(int argc, char * argv [])
 {
+	int i=0;
+	int j=0;
 	loop = uv_default_loop();
 
 	start_time = uv_now(loop);
 
-	if (argc == 2) {
-		pinger_new(atoi(argv[1]));
-	} else {
-		pinger_new(atoi(TEST_PORT));
-	}
+	for (i = 0; i < SERVER_MAX_NUM; i++)
+		for (j = 0; j < CLIENT_MAX_NUM; j++)
+			if (argc == 2) {
+				pinger_new(atoi(argv[1])+i);
+			} else {
+				pinger_new(atoi(TEST_PORT)+i);
+			}
+
 	uv_run(loop);
 
-	ASSERT(completed_pingers == 1);
+	///ASSERT(completed_pingers == 1);
 
 	return 0;
 }
