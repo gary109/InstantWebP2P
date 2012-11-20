@@ -1,7 +1,7 @@
 var httpp = require('httpp');
 var http = require('http');
-var maxSrvs = 2;
-var maxClns = 10;
+var maxSrvs = 10;
+var maxClns = 20;
 
 
 // concurrent clients
