@@ -259,9 +259,7 @@ void uv_udt_endgame(uv_loop_t* loop, uv_udt_t* handle) {
     // close Osfd socket
     ///printf("shutdown,%s.%d\n",  __FUNCTION__, __LINE__);
     if (handle->socket != INVALID_SOCKET) {
-    	while (recv(handle->socket, &dummy, sizeof(dummy), 0) > 0) {
-    		///printf(".");
-    	}
+    	while (recv(handle->socket, &dummy, sizeof(dummy), 0) > 0);
     	closesocket(handle->socket);
     	handle->socket = INVALID_SOCKET;
     }
@@ -410,7 +408,7 @@ static int uv__bindfd(
   return 0;
 }
 
-int uv__udt_bindfd(uv_udt_t* handle, uv_syssocket_t udpfd) {
+int uv__udt_bindfd(uv_udt_t* handle, uv_os_sock_t udpfd) {
     return uv__bindfd(handle, udpfd);
 }
 
@@ -457,6 +455,7 @@ static void uv_udt_queue_poll(uv_loop_t* loop, uv_udt_t* handle) {
 	uv_req_t* req;
 	uv_buf_t buf;
 	DWORD result, bytes, flags;
+	unsigned long nread = 0;
 
 
     if (handle->udtflag & (UV_UDT_REQ_POLL | UV_UDT_REQ_POLL_ERROR))
@@ -472,15 +471,21 @@ static void uv_udt_queue_poll(uv_loop_t* loop, uv_udt_t* handle) {
 	/* Prepare the overlapped structure. */
 	memset(&(req->overlapped), 0, sizeof(req->overlapped));
 
-	flags = 0;
-	result = WSARecv(
-			handle->socket,
-			(WSABUF*)&buf,
-			1,
-			&bytes,
-			&flags,
-			&req->overlapped,
-			NULL);
+	/* Test if there is a pending event */
+	assert(ioctlsocket(handle->socket, FIONREAD, &nread) == 0);
+
+	/* Launch recv request */
+	if (nread == 0) {
+		flags = 0;
+		result = WSARecv(
+				handle->socket,
+				(WSABUF*)&buf,
+				1,
+				&bytes,
+				&flags,
+				&req->overlapped,
+				NULL);
+	}
 
 #ifdef UDT_DEBUG
 	printf("%s:%d, %s, osfd:%d, udtsocket:%d, WSARecv bytes:%d, result:%d, errcode:%d\n",
@@ -489,7 +494,7 @@ static void uv_udt_queue_poll(uv_loop_t* loop, uv_udt_t* handle) {
 			handle->socket, handle->udtfd, bytes, result, WSAGetLastError());
 #endif
 
-	if (result == 0) {
+	if (nread > 0) {
 		uv_insert_pending_req(loop, req);
 		handle->reqs_pending++;
 		handle->udtflag |= UV_UDT_REQ_POLL;
@@ -1425,7 +1430,7 @@ void uv_process_udt_poll_req(
 
 	// 3.
 	// decrease pending request count
-	if ((req->udtflag & (UV_UDT_REQ_POLL | UV_UDT_REQ_POLL_ERROR))&&
+	if ((req->udtflag & (UV_UDT_REQ_POLL | UV_UDT_REQ_POLL_ERROR)) &&
 		handle->reqs_pending)
 		DECREASE_PENDING_REQ_COUNT(handle);
 

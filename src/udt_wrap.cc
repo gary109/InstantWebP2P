@@ -307,7 +307,7 @@ Handle<Value> UDTWrap::Bindfd(const Arguments& args) {
   }
 #endif
 
-  int r = uv_udt_bindfd(&wrap->handle_, (uv_syssocket_t)udpfd);
+  int r = uv_udt_bindfd(&wrap->handle_, (uv_os_sock_t)udpfd);
 
   // Error starting the udt.
   if (r) SetErrno(uv_last_error(uv_default_loop()));
