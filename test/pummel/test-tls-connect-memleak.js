@@ -19,35 +19,38 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef NODE_VERSION_H
-#define NODE_VERSION_H
+// Flags: --expose-gc
 
-#define NODE_MAJOR_VERSION 0
-#define NODE_MINOR_VERSION 8
-#define NODE_PATCH_VERSION 15
-#define NODE_VERSION_IS_RELEASE 1
+var common = require('../common');
+var assert = require('assert');
+var tls = require('tls');
+var fs = require('fs');
 
-#ifndef NODE_STRINGIFY
-#define NODE_STRINGIFY(n) NODE_STRINGIFY_HELPER(n)
-#define NODE_STRINGIFY_HELPER(n) #n
-#endif
+assert(typeof gc === 'function', 'Run this test with --expose-gc');
 
-#if NODE_VERSION_IS_RELEASE
-# define NODE_VERSION_STRING  NODE_STRINGIFY(NODE_MAJOR_VERSION) "." \
-                              NODE_STRINGIFY(NODE_MINOR_VERSION) "." \
-                              NODE_STRINGIFY(NODE_PATCH_VERSION)
-#else
-# define NODE_VERSION_STRING  NODE_STRINGIFY(NODE_MAJOR_VERSION) "." \
-                              NODE_STRINGIFY(NODE_MINOR_VERSION) "." \
-                              NODE_STRINGIFY(NODE_PATCH_VERSION) "-pre"
-#endif
+tls.createServer({
+  cert: fs.readFileSync(common.fixturesDir + '/test_cert.pem'),
+  key: fs.readFileSync(common.fixturesDir + '/test_key.pem')
+}).listen(common.PORT);
 
-#define NODE_VERSION "v" NODE_VERSION_STRING
+(function() {
+  // 2**26 == 64M entries
+  for (var i = 0, junk = [123.456]; i < 26; ++i) junk = junk.concat(junk);
 
+  var options = { rejectUnauthorized: false };
+  tls.connect(common.PORT, '127.0.0.1', options, function() {
+    assert(junk.length != 0);  // keep reference alive
+    setTimeout(done, 10);
+    gc();
+  });
+})();
 
-#define NODE_VERSION_AT_LEAST(major, minor, patch) \
-  (( (major) < NODE_MAJOR_VERSION) \
-  || ((major) == NODE_MAJOR_VERSION && (minor) < NODE_MINOR_VERSION) \
-  || ((major) == NODE_MAJOR_VERSION && (minor) == NODE_MINOR_VERSION && (patch) <= NODE_PATCH_VERSION))
-
-#endif /* NODE_VERSION_H */
+function done() {
+  var before = process.memoryUsage().rss;
+  gc();
+  var after = process.memoryUsage().rss;
+  var reclaimed = (before - after) / 1024;
+  console.log('%d kB reclaimed', reclaimed);
+  assert(reclaimed > 256 * 1024);  // it's more like 512M on x64
+  process.exit();
+}
