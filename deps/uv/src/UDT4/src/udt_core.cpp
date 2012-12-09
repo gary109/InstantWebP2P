@@ -203,7 +203,7 @@ static void _createOsfd(SYSSOCKET m_evPipe[])
 	rc = ioctlsocket(m_evPipe[0], FIONBIO, &arg); assert(rc != SOCKET_ERROR);
 	rc = ioctlsocket(m_evPipe[1], FIONBIO, &arg); assert(rc != SOCKET_ERROR);
 #endif
-	///printf("open evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
+	printf("open evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
 }
 #endif // Osfd
 
@@ -329,7 +329,7 @@ CUDT::CUDT(const CUDT& ancestor)
 static void _closeOsfd(SYSSOCKET m_evPipe[])
 {
 	// close event pipe
-	///printf("close evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
+	printf("close evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
 #ifndef WIN32
 	close(m_evPipe[1]);
 	close(m_evPipe[0]);
@@ -782,6 +782,36 @@ void CUDT::listen()
       throw CUDTException(5, 11, 0);
 
    m_bListening = true;
+}
+
+void CUDT::punchhole(const sockaddr* serv_addr)
+{
+   ///printf("%s.%s.%d\n", __FILE__, __FUNCTION__, __LINE__);
+   CGuard cg(m_ConnectionLock);
+   ///printf("%s.%s.%d\n", __FILE__, __FUNCTION__, __LINE__);
+
+   if (!m_bOpened)
+      throw CUDTException(5, 0, 0);
+
+   if (m_bListening)
+      throw CUDTException(5, 2, 0);
+
+   if (m_bConnecting || m_bConnected)
+      throw CUDTException(5, 2, 0);
+
+   // record peer/server address
+   delete m_pPeerAddr;
+   m_pPeerAddr = (AF_INET == m_iIPversion) ? (sockaddr*)new sockaddr_in : (sockaddr*)new sockaddr_in6;
+   memcpy(m_pPeerAddr, serv_addr, (AF_INET == m_iIPversion) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6));
+
+   //////////////////////////////////////////
+   // Send keep-alive packet to punch hole
+   CPacket klpkt; //001 - Keep-alive
+   klpkt.pack(1);
+   klpkt.m_iID = 0;
+   for (int i = 0; i < 16; i ++)
+      m_pSndQueue->sendto(serv_addr, klpkt);
+   //////////////////////////////////////////
 }
 
 void CUDT::connect(const sockaddr* serv_addr)

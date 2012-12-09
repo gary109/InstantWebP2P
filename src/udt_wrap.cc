@@ -124,6 +124,8 @@ void UDTWrap::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "setNoDelay", SetNoDelay);
   NODE_SET_PROTOTYPE_METHOD(t, "setKeepAlive", SetKeepAlive);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketRendez", SetSocketRendez);
+  NODE_SET_PROTOTYPE_METHOD(t, "punchhole", Punchhole);
+  NODE_SET_PROTOTYPE_METHOD(t, "punchhole6", Punchhole6);
 
   udtConstructor = Persistent<Function>::New(t->GetFunction());
 
@@ -460,10 +462,46 @@ Handle<Value> UDTWrap::SetSocketRendez(const Arguments& args) {
   int enable = args[0]->Int32Value();
 
   int r = uv_udt_setrendez(&wrap->handle_, enable);
-  if (r)
-    SetErrno(uv_last_error(uv_default_loop()));
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
 
-  return Undefined();
+  return scope.Close(Integer::New(r));
+}
+
+
+Handle<Value> UDTWrap::Punchhole(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  String::AsciiValue ip_address(args[0]);
+  int port = args[1]->Int32Value();
+
+  struct sockaddr_in address = uv_ip4_addr(*ip_address, port);
+
+  int r = uv_udt_punchhole(&wrap->handle_, address);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
+}
+
+
+Handle<Value> UDTWrap::Punchhole6(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  String::AsciiValue ip_address(args[0]);
+  int port = args[1]->Int32Value();
+
+  struct sockaddr_in6 address = uv_ip6_addr(*ip_address, port);
+
+  int r = uv_udt_punchhole6(&wrap->handle_, address);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
 }
 
 
