@@ -1032,6 +1032,7 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
       {
     	 ////////////////////////////////////////////////////////////
     	 // Hole punching packet reuse keep-alive packet with id == 0
+    	 // TBD...DOS defense
     	 if (unit->m_Packet.getType() == 1) {
              ///if ((hpcnt++ % 16) == 0) printf("Ignore hole punching packet...\n");
              goto TIMER_CHECK;

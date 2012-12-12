@@ -203,7 +203,7 @@ static void _createOsfd(SYSSOCKET m_evPipe[])
 	rc = ioctlsocket(m_evPipe[0], FIONBIO, &arg); assert(rc != SOCKET_ERROR);
 	rc = ioctlsocket(m_evPipe[1], FIONBIO, &arg); assert(rc != SOCKET_ERROR);
 #endif
-	printf("open evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
+	///printf("open evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
 }
 #endif // Osfd
 
@@ -329,7 +329,7 @@ CUDT::CUDT(const CUDT& ancestor)
 static void _closeOsfd(SYSSOCKET m_evPipe[])
 {
 	// close event pipe
-	printf("close evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
+	///printf("close evPipe fds:%d,%d\n", m_evPipe[0], m_evPipe[1]);
 #ifndef WIN32
 	close(m_evPipe[1]);
 	close(m_evPipe[0]);
@@ -809,8 +809,7 @@ void CUDT::punchhole(const sockaddr* serv_addr)
    CPacket klpkt; //001 - Keep-alive
    klpkt.pack(1);
    klpkt.m_iID = 0;
-   for (int i = 0; i < 16; i ++)
-      m_pSndQueue->sendto(serv_addr, klpkt);
+   m_pSndQueue->sendto(serv_addr, klpkt);
    //////////////////////////////////////////
 }
 
