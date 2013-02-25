@@ -52,6 +52,11 @@ Windows:
 
     vcbuild.bat
 
+cross compile on Raspberry:
+
+    setup toolchain env
+    source cross-compile-pi.sh
+
 ### To run the tests:
 
 Unix/Macintosh:
