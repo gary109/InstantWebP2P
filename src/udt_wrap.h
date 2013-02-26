@@ -64,6 +64,9 @@ class UDTWrap : public StreamWrap {
   static v8::Handle<v8::Value> Punchhole(const v8::Arguments& args);
   static v8::Handle<v8::Value> Punchhole6(const v8::Arguments& args);
 
+  // networking performance monitor
+  static v8::Handle<v8::Value> GetNetPerf(const v8::Arguments& args);
+
   static void OnConnection(uv_stream_t* handle, int status);
   static void AfterConnect(uv_connect_t* req, int status);
 

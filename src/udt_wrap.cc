@@ -65,6 +65,7 @@ using v8::String;
 using v8::TryCatch;
 using v8::Undefined;
 using v8::Value;
+using v8::Number;
 
 static Persistent<Function> udtConstructor;
 static Persistent<String> oncomplete_sym;
@@ -126,6 +127,7 @@ void UDTWrap::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketRendez", SetSocketRendez);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole", Punchhole);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole6", Punchhole6);
+  NODE_SET_PROTOTYPE_METHOD(t, "getnetperf", GetNetPerf);
 
   udtConstructor = Persistent<Function>::New(t->GetFunction());
 
@@ -223,6 +225,180 @@ Handle<Value> UDTWrap::GetPeerName(const Arguments& args) {
 #else
   return scope.Close(AddressToJS(addr, -1, -1));
 #endif
+}
+
+
+Handle<Value> UDTWrap::GetNetPerf(const Arguments& args) {
+  HandleScope scope;
+  uv_netperf_t perf;
+
+  UNWRAP(UDTWrap)
+
+  int r = uv_udt_getperf(&wrap->handle_, &perf, 1); // clear performance data every time
+
+  if (r) {
+    SetErrno(uv_last_error(uv_default_loop()));
+    return Null();
+  }
+
+  // pass performance data to JS
+  Local<Object> jsobj = Object::New();
+
+#if 0
+  // global measurements
+  int64_t msTimeStamp;                 // time since the UDT entity is started, in milliseconds
+  int64_t pktSentTotal;                // total number of sent data packets, including retransmissions
+  int64_t pktRecvTotal;                // total number of received packets
+  int pktSndLossTotal;                 // total number of lost packets (sender side)
+  int pktRcvLossTotal;                 // total number of lost packets (receiver side)
+  int pktRetransTotal;                 // total number of retransmitted packets
+  int pktSentACKTotal;                 // total number of sent ACK packets
+  int pktRecvACKTotal;                 // total number of received ACK packets
+  int pktSentNAKTotal;                 // total number of sent NAK packets
+  int pktRecvNAKTotal;                 // total number of received NAK packets
+  int64_t usSndDurationTotal;          // total time duration when UDT is sending data (idle time exclusive)
+#endif
+  static Persistent<String> msTimeStamp;
+  static Persistent<String> pktSentTotal;
+  static Persistent<String> pktRecvTotal;
+  static Persistent<String> pktSndLossTotal;
+  static Persistent<String> pktRcvLossTotal;
+  static Persistent<String> pktRetransTotal;
+  static Persistent<String> pktSentACKTotal;
+  static Persistent<String> pktRecvACKTotal;
+  static Persistent<String> pktSentNAKTotal;
+  static Persistent<String> pktRecvNAKTotal;
+  static Persistent<String> usSndDurationTotal;
+
+  static Persistent<String> pktSent;
+  static Persistent<String> pktRecv;
+  static Persistent<String> pktSndLoss;
+  static Persistent<String> pktRcvLoss;
+  static Persistent<String> pktRetrans;
+  static Persistent<String> pktSentACK;
+  static Persistent<String> pktRecvACK;
+  static Persistent<String> pktSentNAK;
+  static Persistent<String> pktRecvNAK;
+  static Persistent<String> mbpsSendRate;
+  static Persistent<String> mbpsRecvRate;
+  static Persistent<String> usSndDuration;
+
+  static Persistent<String> usPktSndPeriod;
+  static Persistent<String> pktFlowWindow;
+  static Persistent<String> pktCongestionWindow;
+  static Persistent<String> pktFlightSize;
+  static Persistent<String> msRTT;
+  static Persistent<String> mbpsBandwidth;
+  static Persistent<String> byteAvailSndBuf;
+  static Persistent<String> byteAvailRcvBuf;
+
+  if (msTimeStamp.IsEmpty()) {
+	  msTimeStamp        = NODE_PSYMBOL("msTimeStamp");
+	  pktSentTotal       = NODE_PSYMBOL("pktSentTotal");
+	  pktRecvTotal       = NODE_PSYMBOL("pktRecvTotal");
+	  pktSndLossTotal    = NODE_PSYMBOL("pktSndLossTotal");
+	  pktRcvLossTotal    = NODE_PSYMBOL("pktRcvLossTotal");
+	  pktRetransTotal    = NODE_PSYMBOL("pktRetransTotal");
+	  pktSentACKTotal    = NODE_PSYMBOL("pktSentACKTotal");
+	  pktRecvACKTotal    = NODE_PSYMBOL("pktRecvACKTotal");
+	  pktSentNAKTotal    = NODE_PSYMBOL("pktSentNAKTotal");
+	  pktRecvNAKTotal    = NODE_PSYMBOL("pktRecvNAKTotal");
+	  usSndDurationTotal = NODE_PSYMBOL("usSndDurationTotal");
+
+	  pktSent       = NODE_PSYMBOL("pktSent");
+	  pktRecv       = NODE_PSYMBOL("pktRecv");
+	  pktSndLoss    = NODE_PSYMBOL("pktSndLoss");
+	  pktRcvLoss    = NODE_PSYMBOL("pktRcvLoss");
+	  pktRetrans    = NODE_PSYMBOL("pktRetrans");
+	  pktSentACK    = NODE_PSYMBOL("pktSentACK");
+	  pktRecvACK    = NODE_PSYMBOL("pktRecvACK");
+	  pktSentNAK    = NODE_PSYMBOL("pktSentNAK");
+	  pktRecvNAK    = NODE_PSYMBOL("pktRecvNAK");
+	  mbpsSendRate  = NODE_PSYMBOL("mbpsSendRate");
+	  mbpsRecvRate  = NODE_PSYMBOL("mbpsRecvRate");
+	  usSndDuration = NODE_PSYMBOL("usSndDuration");
+
+	  usPktSndPeriod      = NODE_PSYMBOL("usPktSndPeriod");
+	  pktFlowWindow       = NODE_PSYMBOL("pktFlowWindow");
+	  pktCongestionWindow = NODE_PSYMBOL("pktCongestionWindow");
+	  pktFlightSize       = NODE_PSYMBOL("pktFlightSize");
+	  msRTT               = NODE_PSYMBOL("msRTT");
+	  mbpsBandwidth       = NODE_PSYMBOL("mbpsBandwidth");
+	  byteAvailSndBuf     = NODE_PSYMBOL("byteAvailSndBuf");
+	  byteAvailRcvBuf     = NODE_PSYMBOL("byteAvailRcvBuf");
+  }
+
+  jsobj->Set(msTimeStamp,        Number::New(perf.msTimeStamp));
+  jsobj->Set(pktSentTotal,       Number::New(perf.pktSentTotal));
+  jsobj->Set(pktRecvTotal,       Number::New(perf.pktRecvTotal));
+
+  jsobj->Set(pktSndLossTotal,    Integer::New(perf.pktSndLossTotal));
+  jsobj->Set(pktRcvLossTotal,    Integer::New(perf.pktRcvLossTotal));
+  jsobj->Set(pktRetransTotal,    Integer::New(perf.pktRetransTotal));
+  jsobj->Set(pktSentACKTotal,    Integer::New(perf.pktSentACKTotal));
+  jsobj->Set(pktRecvACKTotal,    Integer::New(perf.pktRecvACKTotal));
+  jsobj->Set(pktSentNAKTotal,    Integer::New(perf.pktSentNAKTotal));
+  jsobj->Set(pktRecvNAKTotal,    Integer::New(perf.pktRecvNAKTotal));
+
+  jsobj->Set(usSndDurationTotal,  Number::New(perf.usSndDurationTotal));
+
+#if 0
+  // local measurements
+  int64_t pktSent;                     // number of sent data packets, including retransmissions
+  int64_t pktRecv;                     // number of received packets
+  int pktSndLoss;                      // number of lost packets (sender side)
+  int pktRcvLoss;                      // number of lost packets (receiver side)
+  int pktRetrans;                      // number of retransmitted packets
+  int pktSentACK;                      // number of sent ACK packets
+  int pktRecvACK;                      // number of received ACK packets
+  int pktSentNAK;                      // number of sent NAK packets
+  int pktRecvNAK;                      // number of received NAK packets
+  double mbpsSendRate;                 // sending rate in Mb/s
+  double mbpsRecvRate;                 // receiving rate in Mb/s
+  int64_t usSndDuration;		        // busy sending time (i.e., idle time exclusive)
+#endif
+
+  jsobj->Set(pktSent,  Number::New(perf.pktSent));
+  jsobj->Set(pktRecv,  Number::New(perf.pktRecv));
+
+  jsobj->Set(pktSndLoss, Integer::New(perf.pktSndLoss));
+  jsobj->Set(pktRcvLoss, Integer::New(perf.pktRcvLoss));
+  jsobj->Set(pktRetrans, Integer::New(perf.pktRetrans));
+  jsobj->Set(pktSentACK, Integer::New(perf.pktSentACK));
+  jsobj->Set(pktRecvACK, Integer::New(perf.pktRecvACK));
+  jsobj->Set(pktSentNAK, Integer::New(perf.pktSentNAK));
+  jsobj->Set(pktRecvNAK, Integer::New(perf.pktRecvNAK));
+
+  jsobj->Set(mbpsSendRate, Number::New(perf.mbpsSendRate));
+  jsobj->Set(mbpsRecvRate, Number::New(perf.mbpsRecvRate));
+
+  jsobj->Set(usSndDuration, Number::New(perf.usSndDuration));
+
+#if 0
+  // instant measurements
+  double usPktSndPeriod;               // packet sending period, in microseconds
+  int pktFlowWindow;                   // flow window size, in number of packets
+  int pktCongestionWindow;             // congestion window size, in number of packets
+  int pktFlightSize;                   // number of packets on flight
+  double msRTT;                        // RTT, in milliseconds
+  double mbpsBandwidth;                // estimated bandwidth, in Mb/s
+  int byteAvailSndBuf;                 // available UDT sender buffer size
+  int byteAvailRcvBuf;                 // available UDT receiver buffer size
+#endif
+
+  jsobj->Set(usPktSndPeriod, Number::New(perf.usPktSndPeriod));
+
+  jsobj->Set(pktFlowWindow,       Integer::New(perf.pktFlowWindow));
+  jsobj->Set(pktCongestionWindow, Integer::New(perf.pktCongestionWindow));
+  jsobj->Set(pktFlightSize,       Integer::New(perf.pktFlightSize));
+
+  jsobj->Set(msRTT,         Number::New(perf.msRTT));
+  jsobj->Set(mbpsBandwidth, Number::New(perf.mbpsBandwidth));
+
+  jsobj->Set(byteAvailSndBuf, Integer::New(perf.byteAvailSndBuf));
+  jsobj->Set(byteAvailRcvBuf, Integer::New(perf.byteAvailRcvBuf));
+
+  return scope.Close(jsobj);
 }
 
 
