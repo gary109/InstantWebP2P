@@ -26,6 +26,7 @@
 #include "stream_wrap.h"
 #include "pipe_wrap.h"
 #include "tcp_wrap.h"
+#include "udt_wrap.h"
 #include "req_wrap.h"
 
 #include <stdlib.h> // abort()
@@ -210,10 +211,12 @@ void StreamWrap::OnReadCommon(uv_stream_t* handle, ssize_t nread,
   Local<Object> pending_obj;
   if (pending == UV_TCP) {
     pending_obj = TCPWrap::Instantiate();
+  } else if (pending == UV_UDT) {
+    pending_obj = UDTWrap::Instantiate();
   } else if (pending == UV_NAMED_PIPE) {
     pending_obj = PipeWrap::Instantiate();
   } else {
-    // We only support sending UV_TCP and UV_NAMED_PIPE right now.
+    // We only support sending UV_TCP, UV_UDT and UV_NAMED_PIPE right now.
     assert(pending == UV_UNKNOWN_HANDLE);
   }
 
