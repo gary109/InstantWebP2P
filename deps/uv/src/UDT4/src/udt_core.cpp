@@ -393,7 +393,7 @@ static int _feedOsfd(const SYSSOCKET m_evPipe[])
 	return send(m_evPipe[1], &dummy, sizeof(dummy), 0);
 #else
 	// trigger level event
-	unsigned long nread = -1;
+        int nread = -1;
 
 	if ((ioctl(m_evPipe[0], FIONREAD, &nread) == 0) &&
 		(nread == 0)) {
