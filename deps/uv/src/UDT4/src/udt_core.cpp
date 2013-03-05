@@ -45,6 +45,7 @@ written by
    #include <cerrno>
    #include <cstring>
    #include <cstdlib>
+   #include <sys/ioctl.h>
 #else
    #include <winsock2.h>
    #include <ws2tcpip.h>
