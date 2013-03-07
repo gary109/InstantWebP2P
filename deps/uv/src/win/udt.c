@@ -1915,6 +1915,21 @@ int uv_udt_setrendez(uv_udt_t* handle, int enable) {
 	return 0;
 }
 
+int uv_udt_setqos(uv_udt_t* handle, int qos) {
+    if (handle->socket != INVALID_SOCKET &&
+        udt_setsockopt(handle->udtfd, 0, UDT_UDT_QOS, &qos, sizeof(qos)))
+	    return -1;
+
+	return 0;
+}
+
+int uv_udt_setmbw(uv_udt_t* handle, int64_t mbw) {
+    if (handle->socket &&
+        udt_setsockopt(handle->udtfd, 0, UDT_UDT_MAXBW, &mbw, sizeof(mbw)))
+	    return -1;
+
+	return 0;
+}
 
 int uv_udt_punchhole(uv_udt_t* handle, struct sockaddr_in address) {
 	if (handle->socket != INVALID_SOCKET &&

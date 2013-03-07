@@ -125,6 +125,8 @@ void UDTWrap::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "setNoDelay", SetNoDelay);
   NODE_SET_PROTOTYPE_METHOD(t, "setKeepAlive", SetKeepAlive);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketRendez", SetSocketRendez);
+  NODE_SET_PROTOTYPE_METHOD(t, "setSocketQos", SetSocketQos);
+  NODE_SET_PROTOTYPE_METHOD(t, "setSocketMbw", SetSocketMbw);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole", Punchhole);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole6", Punchhole6);
   NODE_SET_PROTOTYPE_METHOD(t, "getnetperf", GetNetPerf);
@@ -638,6 +640,38 @@ Handle<Value> UDTWrap::SetSocketRendez(const Arguments& args) {
   int enable = args[0]->Int32Value();
 
   int r = uv_udt_setrendez(&wrap->handle_, enable);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
+}
+
+
+// set socket Qos
+Handle<Value> UDTWrap::SetSocketQos(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  int qos = args[0]->Int32Value();
+
+  int r = uv_udt_setqos(&wrap->handle_, qos);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
+}
+
+
+// set socket maxim bandwidth
+Handle<Value> UDTWrap::SetSocketMbw(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  int mbw = args[0]->Int32Value(); // TBD... >4GBps
+
+  int r = uv_udt_setmbw(&wrap->handle_, mbw);
   // Error starting the udt.
   if (r) SetErrno(uv_last_error(uv_default_loop()));
 

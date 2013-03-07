@@ -57,6 +57,12 @@ class UDTWrap : public StreamWrap {
   // set socket in rendezvous mode for p2p connection
   static v8::Handle<v8::Value> SetSocketRendez(const v8::Arguments& args);
 
+  // set socket qos
+  static v8::Handle<v8::Value> SetSocketQos(const v8::Arguments& args);
+
+  // set socket maxim bandwidth
+  static v8::Handle<v8::Value> SetSocketMbw(const v8::Arguments& args);
+
   // bind socket in existing udp/fd
   static v8::Handle<v8::Value> Bindfd(const v8::Arguments& args);
 
