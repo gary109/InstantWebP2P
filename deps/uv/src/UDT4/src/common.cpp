@@ -128,7 +128,7 @@ void CTimer::rdtsc(uint64_t &x)
       x = mach_absolute_time();
    #else
       // use system call to read time clock for other archs
-      x = getTime();
+      x = getTime() * s_ullCPUFrequency;
    #endif
 }
 
