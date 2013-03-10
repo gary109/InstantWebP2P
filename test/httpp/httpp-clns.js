@@ -6,7 +6,7 @@ var maxClns = 20;
 
 // concurrent clients
 for (var i = 0; i < maxSrvs; i ++) {
-  var port = 51688+i;
+  var port = 51680+i;
   
   for (var j = 0; j < maxClns; j ++) {
     // httpp clients
