@@ -24,7 +24,7 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 * Expand client/central style web service transparently
 * Easy to use API, reuse existing http/web technologes
 
-### TODO:
+### TODO
 
 * Make node-httpp as Node.js module instead of fork
 * Add more test cases
