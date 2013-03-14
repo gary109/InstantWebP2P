@@ -19,7 +19,7 @@ https://groups.google.com/d/forum/iwebpp
 Wiki page:
 https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 
-### Features
+### Advantages
 
 * Run http over udp, leverage udp's high data-transfer performance
 * Run web service in peer/p2p style, behind NAT/FW
