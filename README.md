@@ -28,9 +28,11 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 * Per-socket network performance monitor
 * Per-socket bandwidth limitation
 * Multiplex connections on single udp port
+* Support windows/linux/OSx
 
 ### TODO
 
+* Support iOS, Android
 * Make node-httpp as Node.js module instead of fork
 * Add more test cases
 * Improve documents, RFC draft
