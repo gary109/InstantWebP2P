@@ -28,7 +28,7 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 * Per-socket network performance monitor
 * Per-socket bandwidth limitation
 * Multiplex connections on single udp port
-* Support windows/linux/OSx
+* Support windows/linux/OSx, RaspberryPi
 
 ### TODO
 
