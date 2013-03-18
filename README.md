@@ -21,9 +21,9 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 
 ### Features
 
-* Run http/https over udp, leverage udp's high data-transfer performance
+* Run http and https over udp, leverage udp's high data-transfer performance
 * Expand client/central style web service transparently
-* Easy to use API, reuse existing http/web/node.js technology
+* Easy to use API, reuse existing http/web and node.js technology
 * Configurable Congestion Control
 * Per-socket network performance monitor
 * Per-socket bandwidth limitation
