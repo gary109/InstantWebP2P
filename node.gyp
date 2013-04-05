@@ -57,7 +57,7 @@
 
   'targets': [
     {
-      'target_name': 'node-httpp',
+      'target_name': 'node',
       'type': 'executable',
 
       'dependencies': [
