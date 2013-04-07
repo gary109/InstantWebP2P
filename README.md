@@ -1,6 +1,6 @@
 # node-httpp
 
-#### It's the part of HTTPP, that stands for HTTP over UDP and bring Web in P2P style against client/central-server.
+#### It's the part of HTTPP, that stands for HTTP over UDP and bring Web in P2P style than client/central-server.
 
 It consists of four modules: udt.js, httpp.js, udts.js, httpps.js, that keeps the same api like net.js/http.js/tls.js/https.js.
 
