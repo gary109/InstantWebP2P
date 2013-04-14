@@ -127,6 +127,7 @@ void UDTWrap::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketRendez", SetSocketRendez);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketQos", SetSocketQos);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketMbw", SetSocketMbw);
+  NODE_SET_PROTOTYPE_METHOD(t, "setSocketMbs", SetSocketMbs);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole", Punchhole);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole6", Punchhole6);
   NODE_SET_PROTOTYPE_METHOD(t, "getnetperf", GetNetPerf);
@@ -678,6 +679,23 @@ Handle<Value> UDTWrap::SetSocketMbw(const Arguments& args) {
   return scope.Close(Integer::New(r));
 }
 
+// set socket maxim buffer size
+Handle<Value> UDTWrap::SetSocketMbs(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  int mfc  = args[0]->Int32Value();
+  int mudt = args[1]->Int32Value();
+  int mudp = args[2]->Int32Value();
+
+  // FC window size, UDT,UDP buffer size
+  int r = uv_udt_setmbs(&wrap->handle_, mfc, mudt, mudp);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
+}
 
 Handle<Value> UDTWrap::Punchhole(const Arguments& args) {
   HandleScope scope;

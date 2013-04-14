@@ -63,6 +63,9 @@ class UDTWrap : public StreamWrap {
   // set socket maxim bandwidth
   static v8::Handle<v8::Value> SetSocketMbw(const v8::Arguments& args);
 
+  // set socket maxim buffer size
+  static v8::Handle<v8::Value> SetSocketMbs(const v8::Arguments& args);
+
   // bind socket in existing udp/fd
   static v8::Handle<v8::Value> Bindfd(const v8::Arguments& args);
 
