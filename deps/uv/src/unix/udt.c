@@ -615,7 +615,7 @@ int udt__socket(int domain, int type, int protocol) {
         udt_close(sockfd);
         sockfd = -1;
     }
-    optval = 256000;
+    optval = 1024000;
     if (udt_setsockopt(sockfd, 0, (int)UDT_UDP_SNDBUF, (void *)&optval, sizeof(optval)) |
     	udt_setsockopt(sockfd, 0, (int)UDT_UDP_RCVBUF, (void *)&optval, sizeof(optval))) {
         udt_close(sockfd);

@@ -321,7 +321,7 @@ static int uv__bind(uv_udt_t* handle,
        udt_close(handle->udtfd);
        return -1;
     }
-    optval = 256000;
+    optval = 1024000;
     if (udt_setsockopt(handle->udtfd, 0, (int)UDT_UDP_SNDBUF, (void *)&optval, sizeof(optval)) |
     	udt_setsockopt(handle->udtfd, 0, (int)UDT_UDP_RCVBUF, (void *)&optval, sizeof(optval))) {
        closesocket(sock);
@@ -426,7 +426,7 @@ static int uv__bindfd(
        udt_close(handle->udtfd);
        return -1;
     }
-    optval = 256000;
+    optval = 1024000;
     if (udt_setsockopt(handle->udtfd, 0, (int)UDT_UDP_SNDBUF, (void *)&optval, sizeof(optval)) |
     	udt_setsockopt(handle->udtfd, 0, (int)UDT_UDP_RCVBUF, (void *)&optval, sizeof(optval))) {
        closesocket(sock);
