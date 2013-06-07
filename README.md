@@ -1,6 +1,6 @@
 # node-httpp
 
-## HTTPP - Run HTTP over UDP and Bring Web in Peer or P2P styles.
+### HTTPP - Run HTTP over UDP and Bring Web in Peer or P2P styles.
 
 It consists of four modules: udt.js, httpp.js, udts.js, httpps.js, that keeps the same api like net.js/http.js/tls.js/https.js.
 
