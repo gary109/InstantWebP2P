@@ -5,6 +5,7 @@ export CXX=arm-linux-gnueabihf-g++
 export LINK=arm-linux-gnueabihf-g++
 
 ### add options, like --prefix=/opt/node-v0.8.x-pi/
-./configure --without-snapshot --dest-cpu=arm --dest-os=linux
+./configure --without-snapshot --dest-cpu=arm --dest-os=linux --prefix=/opt/node-v0.8.x-pi/
+
 make
  
