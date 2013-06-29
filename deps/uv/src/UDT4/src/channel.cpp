@@ -164,7 +164,7 @@ void CChannel::setUDPSockOpt()
       // A small time out value will cause the socket to block forever.
       tv.tv_usec = 10000; // 10ms
    #else
-      tv.tv_usec = 10000; // 100us -> 10ms
+      tv.tv_usec = 100; // 100us -> 10ms -> 100us
    #endif
 
    #ifdef UNIX
@@ -174,7 +174,7 @@ void CChannel::setUDPSockOpt()
       if (-1 == ::fcntl(m_iSocket, F_SETFL, opts | O_NONBLOCK))
          throw CUDTException(1, 3, NET_ERROR);
    #elif defined(WIN32)
-      DWORD ot = 10; // 1 milliseconds -> 10ms
+      DWORD ot = 1; // 1 milliseconds -> 10ms -> 1ms
       if (0 != ::setsockopt(m_iSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&ot, sizeof(DWORD)))
          throw CUDTException(1, 3, NET_ERROR);
    #else
