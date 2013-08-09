@@ -23,7 +23,7 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 * Per-socket network performance monitor
 * Per-socket bandwidth limitation
 * Multiplex connections on single udp port, saving system resources
-* Extend client/central style web service transparently
+* Extend client/central server style web service transparently
 * Easy to use API, reuse existing http/web and node.js technology
 * Support windows/linux/OSx, RaspberryPi
 
