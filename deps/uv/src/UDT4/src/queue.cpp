@@ -1073,7 +1073,8 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             	// Process keep-alive packet in case peer's IP changed
             	// if cookie and IPversion matched, then update peer's sockaddr info
             	if (unit->m_Packet.getFlag() && (unit->m_Packet.getType() == 1)) {
-            		if ((addr->sa_family == u->m_iIPversion) && (unit->m_Packet.m_iMsgNo == u->m_pCookie)) {
+            		if ((addr->sa_family == u->m_iIPversion) &&
+            			(unit->m_Packet.m_iMsgNo == (u->m_pCookie ^ u->m_iPeerISN))) {
             			// assuming at least every 3 minutes IP changed,
             			// so to keep 3 hours connection alive defines magic number 68.
             			if (u->m_pPeerChanged <= 68) {

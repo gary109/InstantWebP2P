@@ -1039,7 +1039,7 @@ POST_CONNECT:
    memcpy(m_piSelfIP, m_ConnRes.m_piPeerIP, 16);
 
    // Record cookie
-   m_pCookie = m_ConnRes.m_iCookie ^ m_ConnRes.m_iISN;
+   m_pCookie = m_ConnRes.m_iCookie;
 
    // Prepare all data structures
    try
@@ -1130,7 +1130,7 @@ void CUDT::connect(const sockaddr* peer, CHandShake* hs)
    hs->m_iID = m_SocketID;
 
    // Record cookie
-   m_pCookie = hs->m_iCookie ^ hs->m_iISN;
+   m_pCookie = hs->m_iCookie;
 
    // use peer's ISN and send it back for security check
    m_iISN = hs->m_iISN;
@@ -2312,7 +2312,7 @@ void CUDT::sendCtrl(int pkttype, void* lparam, void* rparam, int size)
    case 1: //001 - Keep-alive
       ctrlpkt.pack(pkttype);
       ctrlpkt.m_iID = m_PeerID;
-      ctrlpkt.m_iMsgNo = m_pCookie;
+      ctrlpkt.m_iMsgNo = m_pCookie ^ m_iISN;
       m_pSndQueue->sendto(m_pPeerAddr, ctrlpkt);
  
       break;
