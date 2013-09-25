@@ -227,6 +227,10 @@ CUDT::CUDT()
    m_pSNode = NULL;
    m_pRNode = NULL;
 
+   // Connection cookie, peer IP changed count
+   m_pCookie = -1;
+   m_pPeerChanged = 0;
+
    // Initilize mutex and condition variables
    initSynch();
 
@@ -1034,6 +1038,9 @@ POST_CONNECT:
    m_PeerID = m_ConnRes.m_iID;
    memcpy(m_piSelfIP, m_ConnRes.m_piPeerIP, 16);
 
+   // Record cookie
+   m_pCookie = m_ConnRes.m_iCookie ^ m_ConnRes.m_iISN;
+
    // Prepare all data structures
    try
    {
@@ -1122,6 +1129,9 @@ void CUDT::connect(const sockaddr* peer, CHandShake* hs)
    m_PeerID = hs->m_iID;
    hs->m_iID = m_SocketID;
 
+   // Record cookie
+   m_pCookie = hs->m_iCookie ^ hs->m_iISN;
+
    // use peer's ISN and send it back for security check
    m_iISN = hs->m_iISN;
 
@@ -1180,6 +1190,7 @@ void CUDT::connect(const sockaddr* peer, CHandShake* hs)
    m_ullInterval = (uint64_t)(m_pCC->m_dPktSndPeriod * m_ullCPUFrequency);
    m_dCongestionWindow = m_pCC->m_dCWndSize;
 
+   delete m_pPeerAddr;
    m_pPeerAddr = (AF_INET == m_iIPversion) ? (sockaddr*)new sockaddr_in : (sockaddr*)new sockaddr_in6;
    memcpy(m_pPeerAddr, peer, (AF_INET == m_iIPversion) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6));
 
@@ -2301,6 +2312,7 @@ void CUDT::sendCtrl(int pkttype, void* lparam, void* rparam, int size)
    case 1: //001 - Keep-alive
       ctrlpkt.pack(pkttype);
       ctrlpkt.m_iID = m_PeerID;
+      ctrlpkt.m_iMsgNo = m_pCookie;
       m_pSndQueue->sendto(m_pPeerAddr, ctrlpkt);
  
       break;

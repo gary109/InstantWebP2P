@@ -282,7 +282,7 @@ public:
 private: // Identification
    UDTSOCKET m_SocketID;                        // UDT socket number
    UDTSockType m_iSockType;                     // Type of the UDT connection (SOCK_STREAM or SOCK_DGRAM)
-   UDTSOCKET m_PeerID;				// peer id, for multiplexer
+   UDTSOCKET m_PeerID;                          // peer id, for multiplexer
    static const int m_iVersion;                 // UDT version, for compatibility use
 
 private: // Packet sizes
@@ -454,6 +454,8 @@ private: // for UDP multiplexer
    CSndQueue* m_pSndQueue;			// packet sending queue
    CRcvQueue* m_pRcvQueue;			// packet receiving queue
    sockaddr* m_pPeerAddr;			// peer address
+   int m_pCookie;                   // connection cookie
+   int m_pPeerChanged;              // peer address changed count
    uint32_t m_piSelfIP[4];			// local UDP IP address
    CSNode* m_pSNode;				// node information for UDT list used in snd queue
    CRNode* m_pRNode;                            // node information for UDT list used in rcv queue

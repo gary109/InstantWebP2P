@@ -1034,7 +1034,7 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
     	 ////////////////////////////////////////////////////////////
     	 // Hole punching packet reuse keep-alive packet with id == 0
     	 // TBD...DOS defense
-    	 if (unit->m_Packet.getType() == 1) {
+    	 if (unit->m_Packet.getFlag() && (unit->m_Packet.getType() == 1)) {
              ///if ((hpcnt++ % 16) == 0) printf("Ignore hole punching packet...\n");
              goto TIMER_CHECK;
     	 }
@@ -1068,6 +1068,49 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
                   u->checkTimers();
                   self->m_pRcvUList->update(u);
                }
+            } else {
+            	////////////////////////////////////////////////////////////////////////////////////////////
+            	// Process keep-alive packet in case peer's IP changed
+            	// if cookie and IPversion matched, then update peer's sockaddr info
+            	if (unit->m_Packet.getFlag() && (unit->m_Packet.getType() == 1)) {
+            		if ((addr->sa_family == u->m_iIPversion) && (unit->m_Packet.m_iMsgNo == u->m_pCookie)) {
+            			// assuming at least every 3 minutes IP changed,
+            			// so to keep 3 hours connection alive defines magic number 68.
+            			if (u->m_pPeerChanged <= 68) {
+            				// record peer/server address
+
+            				// CUDT entry
+            				delete u->m_pPeerAddr;
+            				u->m_pPeerAddr = (AF_INET == u->m_iIPversion) ? (sockaddr*)new sockaddr_in : (sockaddr*)new sockaddr_in6;
+            				memcpy(u->m_pPeerAddr, addr, (AF_INET == u->m_iIPversion) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6));
+
+            				// CUDTSocket entry
+            				delete u->m_pCUDTSocket->m_pPeerAddr;
+            				u->m_pCUDTSocket->m_pPeerAddr = (AF_INET == u->m_iIPversion) ? (sockaddr*)new sockaddr_in : (sockaddr*)new sockaddr_in6;
+            				memcpy(u->m_pCUDTSocket->m_pPeerAddr, addr, (AF_INET == u->m_iIPversion) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6));
+
+            				// send keep-alive packet
+            				u->sendCtrl(1);
+
+            				// increase peer address changed count
+            				u->m_pPeerChanged ++;
+
+            				printf("Warning peer IP changed\n");
+            			} else {
+            				// send ctrlpkt to shutdown peer
+            				CPacket _ctrlpkt;
+            				_ctrlpkt.pack(5);
+            				_ctrlpkt.m_iID = u->m_PeerID;
+            				u->m_pSndQueue->sendto(addr, _ctrlpkt);
+
+            				printf("Warning shutdown peer\n");
+            			}
+            		} else {
+            			static int _dos_crack_hit = 1;
+            			printf("Warning DOS crack %d times\n", _dos_crack_hit ++);
+            		}
+            	}
+            	///////////////////////////////////////////////////////////////////
             }
          }
          else if (NULL != (u = self->m_pRendezvousQueue->retrieve(addr, id)))
