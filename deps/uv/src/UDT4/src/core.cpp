@@ -153,14 +153,14 @@ static void _createOsfd(SYSSOCKET m_evPipe[])
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-	int lp = 5888; // start port to try
+	int lp = 56868; // start port to try
 	int re_try = 0;
 	while (1) {
 		addr.sin_port = htons(lp);
 		rc = bind(listener, (const struct sockaddr*) &addr, sizeof (addr));
 
 		// ongoing next port
-		if (re_try > 6) break;
+		if (re_try > 33) break;
 		lp ++;
 		re_try ++;
 
@@ -172,8 +172,9 @@ static void _createOsfd(SYSSOCKET m_evPipe[])
 		} else {
 			break;
 		}
+		Sleep(33);
 	}
-	if (re_try > 3) {
+	if (re_try > 33) {
 		assert(0);
 	}
 
