@@ -126,6 +126,7 @@ class Connection : ObjectWrap {
   static v8::Handle<v8::Value> GetPeerCertificate(const v8::Arguments& args);
   static v8::Handle<v8::Value> GetSession(const v8::Arguments& args);
   static v8::Handle<v8::Value> SetSession(const v8::Arguments& args);
+  static v8::Handle<v8::Value> GetSessKey(const v8::Arguments& args);
   static v8::Handle<v8::Value> IsSessionReused(const v8::Arguments& args);
   static v8::Handle<v8::Value> IsInitFinished(const v8::Arguments& args);
   static v8::Handle<v8::Value> VerifyError(const v8::Arguments& args);

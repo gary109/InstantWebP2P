@@ -128,6 +128,7 @@ void UDTWrap::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketQos", SetSocketQos);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketMbw", SetSocketMbw);
   NODE_SET_PROTOTYPE_METHOD(t, "setSocketMbs", SetSocketMbs);
+  NODE_SET_PROTOTYPE_METHOD(t, "setSocketSec", SetSocketSec);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole", Punchhole);
   NODE_SET_PROTOTYPE_METHOD(t, "punchhole6", Punchhole6);
   NODE_SET_PROTOTYPE_METHOD(t, "getnetperf", GetNetPerf);
@@ -691,6 +692,33 @@ Handle<Value> UDTWrap::SetSocketMbs(const Arguments& args) {
 
   // FC window size, UDT,UDP buffer size
   int r = uv_udt_setmbs(&wrap->handle_, mfc, mudt, mudp);
+  // Error starting the udt.
+  if (r) SetErrno(uv_last_error(uv_default_loop()));
+
+  return scope.Close(Integer::New(r));
+}
+
+// set socket security mode with 128-bit session key,like(mode,k0,k1,k2,k3)
+Handle<Value> UDTWrap::SetSocketSec(const Arguments& args) {
+  HandleScope scope;
+
+  UNWRAP(UDTWrap)
+
+  int mode = args[0]->Int32Value();
+  unsigned char key[16];
+  int val;
+  // network byte order
+  for (int i=0; i<4; i++) {
+	val      = args[i+1]->Int32Value();
+	key[i*4+3] = val;
+	key[i*4+2] = val >> 8;
+	key[i*4+1] = val >> 16;
+	key[i*4+0] = val >> 24;
+	///printf("val%d:0x%x ", i, val);
+  }
+
+  // security mode, 128-bit session keys
+  int r = uv_udt_setsec(&wrap->handle_, mode, key, 16);
   // Error starting the udt.
   if (r) SetErrno(uv_last_error(uv_default_loop()));
 

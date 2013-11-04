@@ -1100,8 +1100,8 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             			} else {
             				// send ctrlpkt to shutdown peer
             				CPacket _ctrlpkt;
-            				_ctrlpkt.pack(5);
             				_ctrlpkt.m_iID = u->m_PeerID;
+            				_ctrlpkt.pack(5);
             				u->m_pSndQueue->sendto(addr, _ctrlpkt);
 
             				printf("Warning shutdown peer\n");

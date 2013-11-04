@@ -160,7 +160,9 @@ enum UDTOpt
                         // to enable this function, please add -DEVPIPE_OSFD in compile flag.
                         // to get this option, please pass os-specific socket definitions, for example,
                         // in Linux pass int, while in windows pass SOCKET.
-   UDT_QOS              // UDT socket Qos/priority
+   UDT_QOS,             // UDT socket Qos/priority
+   UDT_SECMOD,          // socket security mode: 0 - no secure, 1 - authentication control packet, 2 - authentication both control and data packet
+   UDT_SECKEY           // symmetric key
 };
 
 ////////////////////////////////////////////////////////////////////////////////

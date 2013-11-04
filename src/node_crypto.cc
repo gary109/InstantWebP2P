@@ -797,6 +797,7 @@ void Connection::Initialize(Handle<Object> target) {
   NODE_SET_PROTOTYPE_METHOD(t, "getPeerCertificate", Connection::GetPeerCertificate);
   NODE_SET_PROTOTYPE_METHOD(t, "getSession", Connection::GetSession);
   NODE_SET_PROTOTYPE_METHOD(t, "setSession", Connection::SetSession);
+  NODE_SET_PROTOTYPE_METHOD(t, "getSessKey", Connection::GetSessKey);
   NODE_SET_PROTOTYPE_METHOD(t, "isSessionReused", Connection::IsSessionReused);
   NODE_SET_PROTOTYPE_METHOD(t, "isInitFinished", Connection::IsInitFinished);
   NODE_SET_PROTOTYPE_METHOD(t, "verifyError", Connection::VerifyError);
@@ -1431,6 +1432,35 @@ Handle<Value> Connection::GetSession(const Arguments& args) {
     unsigned char* sbuf = new unsigned char[slen];
     unsigned char* p = sbuf;
     i2d_SSL_SESSION(sess, &p);
+    Local<Value> s = Encode(sbuf, slen, BINARY);
+    delete[] sbuf;
+    return scope.Close(s);
+  }
+
+  return Null();
+}
+
+Handle<Value> Connection::GetSessKey(const Arguments& args) {
+  HandleScope scope;
+
+  Connection *ss = Connection::Unwrap(args);
+
+  if (ss->ssl_ == NULL) return Undefined();
+
+  SSL_SESSION* sess = SSL_get_session(ss->ssl_);
+  if (!sess) return Undefined();
+
+  int slen = i2d_SSL_SESSION(sess, NULL);
+  assert(slen > 0);
+
+  if (slen > 0) {
+	slen = sess->master_key_length;
+    unsigned char* sbuf = new unsigned char[slen+1];
+    sbuf[slen] = 0;
+    memcpy(sbuf, sess->master_key, sess->master_key_length);
+    /*for (int i=0; i<slen; i++) {
+        printf("%02x ", sbuf[i]);
+    }*/
     Local<Value> s = Encode(sbuf, slen, BINARY);
     delete[] sbuf;
     return scope.Close(s);

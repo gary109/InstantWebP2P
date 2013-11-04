@@ -400,6 +400,10 @@ private: // Generation and processing of packets
    int processData(CUnit* unit);
    int listen(sockaddr* addr, CPacket& packet);
 
+private: // Security related data
+   int m_pSecMod;               // secure mode: 0-no security,1-authentication control packet,2-authentication both control and data packet
+   unsigned char m_pSecKey[32]; // 256-bit session keys
+
 private: // Trace
    uint64_t m_StartTime;                        // timestamp when the UDT entity is started
    int64_t m_llSentTotal;                       // total number of sent data packets, including retransmissions
