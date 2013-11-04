@@ -1949,8 +1949,8 @@ int uv_udt_setmbs(uv_udt_t* handle, int32_t mfc, int32_t mudt, int32_t mudp) {
 
 int uv_udt_setsec(uv_udt_t* handle, int32_t mode, unsigned char key_buf[], int32_t key_len) {
     if (handle->socket != INVALID_SOCKET &&
-        (udt_setsockopt(handle->udtfd, 0, UDT_UDT_SECMOD, &mode, sizeof(mode)) ||
-         udt_setsockopt(handle->udtfd, 0, UDT_UDT_SECKEY, key_buf, (32 < key_len) ? 32 : key_len)))
+        (udt_setsockopt(handle->udtfd, 0, UDT_UDT_SECKEY, key_buf, (32 < key_len) ? 32 : key_len)) ||
+         udt_setsockopt(handle->udtfd, 0, UDT_UDT_SECMOD, &mode, sizeof(mode)))
 	    return -1;
 
 	return 0;
