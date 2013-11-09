@@ -392,7 +392,11 @@ int CPacket::chkMAC(const unsigned char* key, const int len)
 	 */
 	// check security flag
 	if (!(m_nHeader[0] & 0x40000000)) {
-		return 0;
+		// bypass ACK,ACK-2 packet check for connection in early setup stage
+		if (getType() != 2 && getType() != 6)
+			return 0;
+		else
+			return -1;
 	}
 
 	// save then clear MAC
