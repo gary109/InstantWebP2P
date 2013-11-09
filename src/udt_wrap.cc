@@ -1,4 +1,4 @@
-// Copyright tom zhou<zs68j2ee@gmail.com>, 2012.
+// Copyright tom zhou<iwebpp@gmail.com>, 2012.
 //
 // udt_wrap.cc, ported from tcp_wrap.cc with udt transport binding
 //
