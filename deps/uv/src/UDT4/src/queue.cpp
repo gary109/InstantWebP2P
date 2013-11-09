@@ -1097,6 +1097,9 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             				// send keep-alive packet
             				u->sendCtrl(1);
 
+            				// process control
+            				u->processCtrl(unit->m_Packet);
+
             				// increase peer address changed count
             				u->m_pPeerChanged ++;
 
