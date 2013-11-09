@@ -1073,8 +1073,12 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             	// Process keep-alive packet in case peer's IP changed
             	// if cookie and IPversion matched, then update peer's sockaddr info
             	if (unit->m_Packet.getFlag() && (unit->m_Packet.getType() == 1)) {
+            		printf("Warning ip changed, keep-alive packet.m_iMsgNo: 0x%x, m_pCookie ^ u->m_iPeerISN: 0x%x\n",
+                           unit->m_Packet.m_iMsgNo, u->m_pCookie ^ u->m_iPeerISN);
+
             		if ((addr->sa_family == u->m_iIPversion) &&
-            			(unit->m_Packet.m_iMsgNo == (u->m_pCookie ^ u->m_iPeerISN))) {
+            			(unit->m_Packet.m_iMsgNo == (u->m_pCookie ^ u->m_iPeerISN)) &&
+            			(u->m_pSecMod ? unit->m_Packet.chkMAC(u->m_pSecKey, 16) : 1)) { // check MAC on keep-alive packet
             			// assuming at least every 3 minutes IP changed,
             			// so to keep 3 hours connection alive defines magic number 68.
             			if (u->m_pPeerChanged <= 68) {
@@ -1102,6 +1106,9 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             				CPacket _ctrlpkt;
             				_ctrlpkt.m_iID = u->m_PeerID;
             				_ctrlpkt.pack(5);
+            				if (u->m_pSecMod) {
+            					_ctrlpkt.setMAC(u->m_pSecKey, 16);
+            				}
             				u->m_pSndQueue->sendto(addr, _ctrlpkt);
 
             				printf("Warning shutdown peer\n");
@@ -1110,6 +1117,8 @@ void CRcvQueue::init(int qsize, int payload, int version, int hsize, CChannel* c
             			static int _dos_crack_hit = 1;
             			printf("Warning DOS crack %d times\n", _dos_crack_hit ++);
             		}
+            	} else if (unit->m_Packet.getFlag() == 0) {
+            		// TBD... recovery from data packet
             	}
             	///////////////////////////////////////////////////////////////////
             }
