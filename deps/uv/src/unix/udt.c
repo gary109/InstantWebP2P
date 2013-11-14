@@ -619,6 +619,7 @@ int udt__socket(int domain, int type, int protocol) {
     /* Set default UDT buffer size */
     // optimization for node.js:
     // - set maxWindowSize from 25600 to 1280, UDT/UDP buffer from 10M/1M to 512K/256K
+    // TBD...
     optval = 1280;
     if (udt_setsockopt(sockfd, 0, (int)UDT_UDT_FC, (void *)&optval, sizeof(optval))) {
         udt_close(sockfd);
