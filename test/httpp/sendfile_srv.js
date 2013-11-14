@@ -8,5 +8,5 @@ var srv = udt.createServer(function(socket){
     console.log('write file to '+fn);
 });
 
-srv.listen(51699);
-console.log('UDP file server listen on 51699');
+srv.listen(51666);
+console.log('UDP file server listen on 51666');
