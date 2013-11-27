@@ -1199,7 +1199,19 @@ INLINE static void udt_process_reqs_udtwrite(uv_loop_t* loop, uv_udt_t* handle) 
 				///UNREGISTER_HANDLE_REQ(loop, handle, req);
 
 				if (req->cb) {
-					if (werr) uv__set_sys_error(loop, uv_translate_udt_error());
+					if (werr) {
+						int udterr = uv_translate_udt_error();
+
+						// 3.1
+						// Connection closed or socket broken as EOF
+						if (udterr == ERROR_BROKEN_PIPE || udterr == WSAENOTSOCK) {
+							uv__set_error(loop, UV_EOF, ERROR_SUCCESS);
+						} else {
+							// other error
+							uv__set_sys_error(loop, udterr);
+						}
+					}
+
 					((uv_write_cb)req->cb)(req, werr ? -1 : 0);
 				}
 

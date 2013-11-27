@@ -223,7 +223,7 @@ void uv__server_io(uv_loop_t* loop, uv__io_t* w, int events) {
 				  errno = ECONNABORTED;
 				  continue;
 			  } else {
-				  uv__set_sys_error(stream->loop, errno);
+				  uv__set_sys_error(stream->loop, uv_translate_udt_error());
 				  stream->connection_cb((uv_stream_t*)stream, -1);
 			  }
 		  } else {
@@ -652,7 +652,15 @@ static void uv__write_callbacks(uv_stream_t* stream) {
 
     /* NOTE: call callback AFTER freeing the request data. */
     if (req->cb) {
-      uv__set_sys_error(stream->loop, req->error);
+      if (req->error == EPIPE || req->error == ENOTSOCK) {
+        // socket broken or invalid socket as EOF
+
+        /* EOF */
+        uv__set_artificial_error(stream->loop, UV_EOF);
+      } else {
+        uv__set_sys_error(stream->loop, req->error);
+      }
+
       req->cb(req, req->error ? -1 : 0);
     }
   }
