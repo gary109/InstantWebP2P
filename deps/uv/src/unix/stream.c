@@ -652,15 +652,7 @@ static void uv__write_callbacks(uv_stream_t* stream) {
 
     /* NOTE: call callback AFTER freeing the request data. */
     if (req->cb) {
-      if (req->error == EPIPE || req->error == ENOTSOCK) {
-        // socket broken or invalid socket as EOF
-
-        /* EOF */
-        uv__set_artificial_error(stream->loop, UV_EOF);
-      } else {
-        uv__set_sys_error(stream->loop, req->error);
-      }
-
+      uv__set_sys_error(stream->loop, req->error);
       req->cb(req, req->error ? -1 : 0);
     }
   }
