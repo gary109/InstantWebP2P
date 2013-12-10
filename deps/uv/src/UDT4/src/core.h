@@ -87,7 +87,7 @@ public: //API
    static int bind(UDTSOCKET u, UDPSOCKET udpsock);
    static int listen(UDTSOCKET u, int backlog);
    static UDTSOCKET accept(UDTSOCKET u, sockaddr* addr, int* addrlen);
-   static int punchhole(UDTSOCKET u, const sockaddr* name, int namelen);
+   static int punchhole(UDTSOCKET u, const sockaddr* name, int namelen, int from, int to);
    static int connect(UDTSOCKET u, const sockaddr* name, int namelen);
    static int close(UDTSOCKET u);
    static int getpeername(UDTSOCKET u, sockaddr* name, int* namelen);
@@ -144,7 +144,7 @@ private:
 
    void connect(const sockaddr* peer);
 
-   void punchhole(const sockaddr* peer);
+   void punchhole(const sockaddr* peer, const int from, const int to);
 
       // Functionality:
       //    Process the response handshake packet.

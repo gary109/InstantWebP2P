@@ -732,10 +732,12 @@ Handle<Value> UDTWrap::Punchhole(const Arguments& args) {
 
   String::AsciiValue ip_address(args[0]);
   int port = args[1]->Int32Value();
+  int from = args[2]->Int32Value();
+  int to = args[3]->Int32Value();
 
   struct sockaddr_in address = uv_ip4_addr(*ip_address, port);
 
-  int r = uv_udt_punchhole(&wrap->handle_, address);
+  int r = uv_udt_punchhole(&wrap->handle_, address, from, to);
   // Error starting the udt.
   if (r) SetErrno(uv_last_error(uv_default_loop()));
 
@@ -750,10 +752,12 @@ Handle<Value> UDTWrap::Punchhole6(const Arguments& args) {
 
   String::AsciiValue ip_address(args[0]);
   int port = args[1]->Int32Value();
+  int from = args[2]->Int32Value();
+  int to = args[3]->Int32Value();
 
   struct sockaddr_in6 address = uv_ip6_addr(*ip_address, port);
 
-  int r = uv_udt_punchhole6(&wrap->handle_, address);
+  int r = uv_udt_punchhole6(&wrap->handle_, address, from, to);
   // Error starting the udt.
   if (r) SetErrno(uv_last_error(uv_default_loop()));
 

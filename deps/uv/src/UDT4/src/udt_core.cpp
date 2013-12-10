@@ -843,7 +843,7 @@ void CUDT::listen()
    m_bListening = true;
 }
 
-void CUDT::punchhole(const sockaddr* serv_addr)
+void CUDT::punchhole(const sockaddr* serv_addr, const int from, const int to)
 {
    ///printf("%s.%s.%d\n", __FILE__, __FUNCTION__, __LINE__);
    CGuard cg(m_ConnectionLock);
@@ -858,18 +858,37 @@ void CUDT::punchhole(const sockaddr* serv_addr)
    if (m_bConnecting || m_bConnected)
       throw CUDTException(5, 2, 0);
 
-   // record peer/server address
-   delete m_pPeerAddr;
-   m_pPeerAddr = (AF_INET == m_iIPversion) ? (sockaddr*)new sockaddr_in : (sockaddr*)new sockaddr_in6;
-   memcpy(m_pPeerAddr, serv_addr, (AF_INET == m_iIPversion) ? sizeof(sockaddr_in) : sizeof(sockaddr_in6));
+   if (AF_INET == m_iIPversion) {
+	   // create temp address
+	   sockaddr_in temp_addr;
+	   memcpy(&temp_addr, serv_addr, sizeof(sockaddr_in));
 
-   //////////////////////////////////////////
-   // Send keep-alive packet to punch hole
-   CPacket klpkt; //001 - Keep-alive
-   klpkt.m_iID = 0;
-   klpkt.pack(1);
-   m_pSndQueue->sendto(serv_addr, klpkt);
-   //////////////////////////////////////////
+	   //////////////////////////////////////////
+	   // Send keep-alive packet to punch hole with port range [from, to]
+	   CPacket klpkt; //001 - Keep-alive
+	   klpkt.m_iID = 0;
+	   klpkt.pack(1);
+	   for (int start = from; start <= to; start ++) {
+		   temp_addr.sin_port += start;
+		   m_pSndQueue->sendto((const sockaddr *)&temp_addr, klpkt);
+	   }
+	   //////////////////////////////////////////
+   } else {
+	   // create temp address
+	   sockaddr_in6 temp_addr;
+	   memcpy(&temp_addr, serv_addr, sizeof(sockaddr_in6));
+
+	   //////////////////////////////////////////
+	   // Send keep-alive packet to punch hole with port range [from, to]
+	   CPacket klpkt; //001 - Keep-alive
+	   klpkt.m_iID = 0;
+	   klpkt.pack(1);
+	   for (int start = from; start <= to; start ++) {
+		   temp_addr.sin6_port += start;
+		   m_pSndQueue->sendto((const sockaddr *)&temp_addr, klpkt);
+	   }
+	   //////////////////////////////////////////
+   }
 }
 
 void CUDT::connect(const sockaddr* serv_addr)

@@ -1956,17 +1956,17 @@ int uv_udt_setsec(uv_udt_t* handle, int32_t mode, unsigned char key_buf[], int32
 	return 0;
 }
 
-int uv_udt_punchhole(uv_udt_t* handle, struct sockaddr_in address) {
+int uv_udt_punchhole(uv_udt_t* handle, struct sockaddr_in address, int32_t from, int32_t to) {
 	if (handle->socket != INVALID_SOCKET &&
-        udt_punchhole(handle->udtfd, &address, sizeof(address)))
+        udt_punchhole(handle->udtfd, &address, sizeof(address), from, to))
 		return -1;
 
 	return 0;
 }
 
-int uv_udt_punchhole6(uv_udt_t* handle, struct sockaddr_in6 address) {
+int uv_udt_punchhole6(uv_udt_t* handle, struct sockaddr_in6 address, int32_t from, int32_t to) {
 	if (handle->socket != INVALID_SOCKET &&
-        udt_punchhole(handle->udtfd, &address, sizeof(address)))
+        udt_punchhole(handle->udtfd, &address, sizeof(address), from,  to))
 		return -1;
 
 	return 0;

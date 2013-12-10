@@ -328,8 +328,8 @@ UDT_API int bind2(UDTSOCKET u, UDPSOCKET udpsock);
 UDT_API int listen(UDTSOCKET u, int backlog);
 UDT_API UDTSOCKET accept(UDTSOCKET u, struct sockaddr* addr, int* addrlen);
 ////////////////////////////////////////////////////////////////////////////
-// send keep-alive packet to punch hole manually
-UDT_API int punchhole(UDTSOCKET u, const struct sockaddr* name, int namelen);
+// send keep-alive packet to punch hole manually with a port range [from, to]
+UDT_API int punchhole(UDTSOCKET u, const struct sockaddr* name, int namelen, int from, int to);
 /////////////////////////////////////////////////////////////////////////////
 UDT_API int connect(UDTSOCKET u, const struct sockaddr* name, int namelen);
 UDT_API int close(UDTSOCKET u);
