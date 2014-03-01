@@ -868,8 +868,10 @@ void CUDT::punchhole(const sockaddr* serv_addr, const int from, const int to)
 	   CPacket klpkt; //001 - Keep-alive
 	   klpkt.m_iID = 0;
 	   klpkt.pack(1);
+
+	   int refport = temp_addr.sin_port;
 	   for (int start = from; start <= to; start ++) {
-		   temp_addr.sin_port += start;
+		   temp_addr.sin_port = refport + start;
 		   m_pSndQueue->sendto((const sockaddr *)&temp_addr, klpkt);
 	   }
 	   //////////////////////////////////////////
@@ -883,8 +885,10 @@ void CUDT::punchhole(const sockaddr* serv_addr, const int from, const int to)
 	   CPacket klpkt; //001 - Keep-alive
 	   klpkt.m_iID = 0;
 	   klpkt.pack(1);
+
+	   int refport = temp_addr.sin6_port;
 	   for (int start = from; start <= to; start ++) {
-		   temp_addr.sin6_port += start;
+		   temp_addr.sin6_port = refport + start;
 		   m_pSndQueue->sendto((const sockaddr *)&temp_addr, klpkt);
 	   }
 	   //////////////////////////////////////////
