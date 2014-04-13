@@ -2441,12 +2441,17 @@ void CUDT::sendCtrl(int pkttype, void* lparam, void* rparam, int size)
    }
 }
 
+#include <time.h>
+
 void CUDT::processCtrl(CPacket& ctrlpkt)
 {
-   // Check MAC in secure mode
+    // Check MAC in secure mode
 	if (m_pSecMod) {
 		if (!ctrlpkt.chkMAC(&m_pSecKey[0], 16)) {
-			printf("!!!DDOS attack, ctrlpkt MAC check failed.pkt.type:%d ", ctrlpkt.getType());
+			time_t rawtime;
+			time(&rawtime);
+
+			printf("%s DDOS attack, ctrlpkt MAC check failed.pkt.type:%d ", ctime(&rawtime), ctrlpkt.getType());
 
 			// log attack
 			if (m_iIPversion == AF_INET) {
