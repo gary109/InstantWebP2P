@@ -376,6 +376,7 @@ int CPacket::setMAC(const unsigned char* key, const int len)
 	return m_nHeader[4];
 }
 
+// 1: pass, 0: fail, -1: bypass
 int CPacket::chkMAC(const unsigned char* key, const int len)
 {
 	md5_state_t state;
@@ -394,9 +395,9 @@ int CPacket::chkMAC(const unsigned char* key, const int len)
 	if (!(m_nHeader[0] & 0x40000000)) {
 		// bypass ACK,ACK-2 packet check for connection in early setup stage
 		if (getType() != 2 && getType() != 6)
-			return 0;
+			return 0;  // fail
 		else
-			return -1;
+			return -1; // pass
 	}
 
 	// save then clear MAC

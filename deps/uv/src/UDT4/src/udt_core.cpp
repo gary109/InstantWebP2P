@@ -2444,12 +2444,34 @@ void CUDT::sendCtrl(int pkttype, void* lparam, void* rparam, int size)
 void CUDT::processCtrl(CPacket& ctrlpkt)
 {
    // Check MAC in secure mode
-   if (m_pSecMod) {
-       if (!ctrlpkt.chkMAC(&m_pSecKey[0], 16)) {
-           printf("!!!DDOS attack, ctrlpkt MAC check failed.pkt.type:%d\n", ctrlpkt.getType());
-           return;
-       }
-   }
+	if (m_pSecMod) {
+		if (!ctrlpkt.chkMAC(&m_pSecKey[0], 16)) {
+			printf("!!!DDOS attack, ctrlpkt MAC check failed.pkt.type:%d ", ctrlpkt.getType());
+
+			// log attack
+			if (m_iIPversion == AF_INET) {
+				// IPv4
+				int ip = ((sockaddr_in *)m_pPeerAddr)->sin_addr.s_addr;
+				printf(" from ipv4: "
+						"%d.%d.%d.%d\n",
+						(ip>>24)&0xff, (ip>>16)&0xff, (ip>>8)&0xff, (ip>>0)&0xff);
+			} else {
+				// IPv6
+				sockaddr_in6* a = (sockaddr_in6 *)m_pPeerAddr;
+				printf(" from ipv6: "
+						"%d.%d.%d.%d."
+						"%d.%d.%d.%d."
+						"%d.%d.%d.%d."
+						"%d.%d.%d.%d\n",
+						a->sin6_addr.s6_addr[15], a->sin6_addr.s6_addr[14], a->sin6_addr.s6_addr[13],a->sin6_addr.s6_addr[12],
+						a->sin6_addr.s6_addr[11], a->sin6_addr.s6_addr[10], a->sin6_addr.s6_addr[9],a->sin6_addr.s6_addr[8],
+						a->sin6_addr.s6_addr[7], a->sin6_addr.s6_addr[6], a->sin6_addr.s6_addr[5],a->sin6_addr.s6_addr[4],
+						a->sin6_addr.s6_addr[3], a->sin6_addr.s6_addr[2], a->sin6_addr.s6_addr[1],a->sin6_addr.s6_addr[0]);
+			}
+
+			return;
+		}
+	}
 
    // Just heard from the peer, reset the expiration count.
    m_iEXPCount = 1;
