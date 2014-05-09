@@ -2454,7 +2454,7 @@ void CUDT::processCtrl(CPacket& ctrlpkt)
 			// log attack
 			if (m_iIPversion == AF_INET) {
 				// IPv4
-				int ip = ((sockaddr_in *)m_pPeerAddr)->sin_addr.s_addr;
+				int ip = ntohl(((sockaddr_in *)m_pPeerAddr)->sin_addr.s_addr);
 				printf(" from ipv4: "
 						"%d.%d.%d.%d\n",
 						(ip>>24)&0xff, (ip>>16)&0xff, (ip>>8)&0xff, (ip>>0)&0xff);
