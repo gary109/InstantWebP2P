@@ -237,7 +237,12 @@ CUDT::CUDT()
    initSynch();
 
    // Default UDT configurations
-   m_iMSS = 1500;
+  
+   // !!! fixed iMSS to 1492 for RPI, need to root cause /////////////
+   ///m_iMSS = 1500;
+   m_iMSS = 1492;
+   ////////////////////////////////////////////////////////////////////  
+ 
    m_bSynSending = true;
    m_bSynRecving = true;
    m_iFlightFlagSize = 25600;
@@ -2441,6 +2446,8 @@ void CUDT::sendCtrl(int pkttype, void* lparam, void* rparam, int size)
    }
 }
 
+#include <time.h>
+
 void CUDT::processCtrl(CPacket& ctrlpkt)
 {
     // Check MAC in secure mode
@@ -3217,7 +3224,9 @@ void CUDT::checkTimers()
             ///printf("%s.%s.%d, trigger recv/listen ...", __FILE__, __FUNCTION__, __LINE__);
             feedOsfd();
             ///printf("done\n");
-	} else if (m_bConnected && (m_iSndBufSize > m_pSndBuffer->getCurrBufSize()))
+	} 
+
+        if (m_bConnected && (m_iSndBufSize > m_pSndBuffer->getCurrBufSize()))
 	{
             ///printf("%s.%s.%d, trigger send ...", __FILE__, __FUNCTION__, __LINE__);
             ///feedOsfd();
