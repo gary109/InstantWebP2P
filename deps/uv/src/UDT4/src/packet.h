@@ -138,7 +138,7 @@ public:
 	   // Returned value:
 	   //    packet mac 32-bit.
 
-	int getMAC() const;
+   uint32_t getMAC() const;
 
 	   // Functionality:
 	   //    Calculate and set the packet mac.
@@ -147,7 +147,7 @@ public:
 	   // Returned value:
 	   //    packet mac 32-bit.
 
-	int setMAC(const unsigned char* key, const int len);
+   int setMAC(const unsigned char* key, const int len);
 
 	   // Functionality:
 	   //    Calculate and check the packet mac.

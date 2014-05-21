@@ -327,7 +327,7 @@ int CPacket::getType() const
    return (m_nHeader[0] >> 16) & 0x00003FFF;
 }
 
-int CPacket::getMAC() const
+uint32_t CPacket::getMAC() const
 {
 	if (m_nHeader[0] & 0x40000000) {
 		// read bit 128-159
@@ -342,7 +342,7 @@ int CPacket::getMAC() const
 int CPacket::setMAC(const unsigned char* key, const int len)
 {
 	md5_state_t state;
-	int digest[4];
+	uint32_t digest[4];
 
 
 	/*printf("pkt.type %d,setMAC:", getType());
@@ -380,8 +380,8 @@ int CPacket::setMAC(const unsigned char* key, const int len)
 int CPacket::chkMAC(const unsigned char* key, const int len)
 {
 	md5_state_t state;
-	int digest[4];
-	int expect;
+	uint32_t digest[4];
+	uint32_t expect;
 
 
 	/*printf("pkt.type %d,chkMAC [0]-0x%x [4]-0x%x:",
