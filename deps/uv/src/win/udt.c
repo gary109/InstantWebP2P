@@ -317,6 +317,7 @@ static int uv__bind(uv_udt_t* handle,
     /* Set UDT buffer size */
     // optimization for node.js
     // - set maxWindowSize from from 25600 to 2560, UDT/UDP buffer from 10M/1M to 1M/100K
+    /*
     optval = 2560;
     if (udt_setsockopt(handle->udtfd, 0, (int)UDT_UDT_FC, (void *)&optval, sizeof(optval))) {
        closesocket(sock);
@@ -336,7 +337,7 @@ static int uv__bind(uv_udt_t* handle,
        closesocket(sock);
        udt_close(handle->udtfd);
        return -1;
-    }
+    }*/
     ///////////////////////////////////////////////////////////////////////////////////////////////
   }
 
@@ -422,7 +423,7 @@ static int uv__bindfd(
     /* Set UDT buffer size */
     // optimization for node.js
     // - set maxWindowSize from 25600 to 2560, UDT/UDP buffer from 10M/1M to 1M/100K
-    optval = 2560;
+    /*optval = 2560;
     if (udt_setsockopt(handle->udtfd, 0, (int)UDT_UDT_FC, (void *)&optval, sizeof(optval))) {
        closesocket(sock);
        udt_close(handle->udtfd);
@@ -441,7 +442,7 @@ static int uv__bindfd(
        closesocket(sock);
        udt_close(handle->udtfd);
        return -1;
-    }
+    }*/
     ///////////////////////////////////////////////////////////////////////////////////////////////
   }
 

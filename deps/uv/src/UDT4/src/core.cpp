@@ -1036,13 +1036,14 @@ int CUDT::connect(const CPacket& response) throw ()
 
    if (m_bRendezvous && ((0 == response.getFlag()) || (1 == response.getType())) && (0 != m_ConnRes.m_iType))
    {
-      //a data packet or a keep-alive packet comes, which means the peer side is already connected
+      // a data packet or a keep-alive packet comes, which means the peer side is already connected
       // in this situation, the previously recorded response will be used
       goto POST_CONNECT;
    }
 
+   // continue on data packet arrived
    if ((1 != response.getFlag()) || (0 != response.getType()))
-      return -1;
+      return 1;
 
    m_ConnRes.deserialize(response.m_pcData, response.getLength());
 
