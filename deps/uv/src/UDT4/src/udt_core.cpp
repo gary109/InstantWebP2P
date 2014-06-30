@@ -2457,19 +2457,20 @@ void CUDT::processCtrl(CPacket& ctrlpkt)
 			time_t rawtime;
 			time(&rawtime);
 
-			printf("%s DDOS attack, ctrlpkt MAC check failed.pkt.type:%d ", ctime(&rawtime), ctrlpkt.getType());
+			///printf("%s DDOS attack, ctrlpkt MAC check failed.pkt.type:%d ", ctime(&rawtime), ctrlpkt.getType());
 
 			// log attack
 			if (m_iIPversion == AF_INET) {
 				// IPv4
 				int ip = ntohl(((sockaddr_in *)m_pPeerAddr)->sin_addr.s_addr);
-				printf(" from ipv4: "
+				/*printf(" from ipv4: "
 						"%d.%d.%d.%d\n",
 						(ip>>24)&0xff, (ip>>16)&0xff, (ip>>8)&0xff, (ip>>0)&0xff);
+                                */
 			} else {
 				// IPv6
 				sockaddr_in6* a = (sockaddr_in6 *)m_pPeerAddr;
-				printf(" from ipv6: "
+				/*printf(" from ipv6: "
 						"%d.%d.%d.%d."
 						"%d.%d.%d.%d."
 						"%d.%d.%d.%d."
@@ -2478,6 +2479,7 @@ void CUDT::processCtrl(CPacket& ctrlpkt)
 						a->sin6_addr.s6_addr[11], a->sin6_addr.s6_addr[10], a->sin6_addr.s6_addr[9],a->sin6_addr.s6_addr[8],
 						a->sin6_addr.s6_addr[7], a->sin6_addr.s6_addr[6], a->sin6_addr.s6_addr[5],a->sin6_addr.s6_addr[4],
 						a->sin6_addr.s6_addr[3], a->sin6_addr.s6_addr[2], a->sin6_addr.s6_addr[1],a->sin6_addr.s6_addr[0]);
+                                */
 			}
 
 			return;
