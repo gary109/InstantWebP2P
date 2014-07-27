@@ -619,25 +619,25 @@ int udt__socket(int domain, int type, int protocol) {
     /* Set default UDT buffer size */
     // optimization for node.js:
     // - set maxWindowSize from 25600 to 2560, UDT/UDP buffer from 10M/1M to 1M/100K
+    // - ??? or            from 25600 to 5120, UDT/UDP buffer from 10M/1M to 2M/200K
     // TBD...
-    optval = 2560;
-    /*
+    optval = 5120;
     if (udt_setsockopt(sockfd, 0, (int)UDT_UDT_FC, (void *)&optval, sizeof(optval))) {
         udt_close(sockfd);
         sockfd = -1;
     }
-    optval = 102400;
+    optval = 204800;
     if (udt_setsockopt(sockfd, 0, (int)UDT_UDP_SNDBUF, (void *)&optval, sizeof(optval)) |
     	udt_setsockopt(sockfd, 0, (int)UDT_UDP_RCVBUF, (void *)&optval, sizeof(optval))) {
         udt_close(sockfd);
         sockfd = -1;
     }
-    optval = 1024000;
+    optval = 2048000;
     if (udt_setsockopt(sockfd, 0, (int)UDT_UDT_SNDBUF, (void *)&optval, sizeof(optval)) |
     	udt_setsockopt(sockfd, 0, (int)UDT_UDT_RCVBUF, (void *)&optval, sizeof(optval))) {
         udt_close(sockfd);
         sockfd = -1;
-    }*/
+    }
     ////////////////////////////////////////////////////////////////////////////////////////
 
     if (udt__nonblock(sockfd, 1)) {
