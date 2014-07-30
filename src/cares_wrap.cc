@@ -748,7 +748,7 @@ static Handle<Value> GetAddrInfo(const Arguments& args) {
 
 
 static Handle<Value> GetServers(const Arguments& args) {
-  HandleScope scope(node_isolate);
+  HandleScope scope;
 
   Local<Array> server_array = Array::New();
 
@@ -763,8 +763,9 @@ static Handle<Value> GetServers(const Arguments& args) {
     char ip[INET6_ADDRSTRLEN];
 
     const void* caddr = static_cast<const void*>(&cur->addr);
-    uv_err_t err = uv_inet_ntop(cur->family, caddr, ip, sizeof(ip));
-    assert(err.code == UV_OK);
+    ///uv_err_t err = (uv_err_t)uv_inet_ntop(cur->family, caddr, ip, sizeof(ip));
+    ///assert(err.code == UV_OK);
+    const char* c = uv_inet_ntop(cur->family, caddr, ip, sizeof(ip));
 
     Local<String> addr = String::New(ip);
     server_array->Set(i, addr);
@@ -777,7 +778,7 @@ static Handle<Value> GetServers(const Arguments& args) {
 
 
 static Handle<Value> SetServers(const Arguments& args) {
-  HandleScope scope(node_isolate);
+  HandleScope scope;
 
   assert(args[0]->IsArray());
 
@@ -793,7 +794,8 @@ static Handle<Value> SetServers(const Arguments& args) {
   ares_addr_node* servers = new ares_addr_node[len];
   ares_addr_node* last = NULL;
 
-  uv_err_t uv_ret;
+  ///uv_err_t uv_ret;
+  uint32_t uv_ret;
 
   for (uint32_t i = 0; i < len; i++) {
     assert(arr->Get(i)->IsArray());
@@ -819,7 +821,8 @@ static Handle<Value> SetServers(const Arguments& args) {
         break;
     }
 
-    if (uv_ret.code != UV_OK)
+    ///if (uv_ret.code != UV_OK)
+    if (uv_ret != 1)
       break;
 
     cur->next = NULL;
@@ -832,7 +835,8 @@ static Handle<Value> SetServers(const Arguments& args) {
 
   int r;
 
-  if (uv_ret.code == UV_OK)
+  ///if (uv_ret.code == UV_OK)
+  if (uv_ret == 1)
     r = ares_set_servers(ares_channel, &servers[0]);
   else
     r = ARES_EBADSTR;
