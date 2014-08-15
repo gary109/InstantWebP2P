@@ -29,7 +29,7 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 
 ### TODO
 
-* Support Android,WP8,iOS
+* Support iOS, WP8
 * Make node-httpp as Node.js module instead of fork
 * Add more test cases
 * Improve documents, RFC draft
