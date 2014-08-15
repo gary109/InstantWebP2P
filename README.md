@@ -25,7 +25,7 @@ https://github.com/InstantWebP2P/node-httpp/wiki/An-introduction-to-node-httpp
 * Multiplex connections on single udp port, saving system resources
 * Extend client/central server style web service transparently
 * Easy to use API, reuse existing http/web and node.js technology
-* Support windows/linux/OSx, RaspberryPi
+* Support windows/linux/OSx, RaspberryPi, Android
 
 ### TODO
 
@@ -62,6 +62,17 @@ Unix/Macintosh:
     make
     make install
 
+Cross compile for Raspberry Pi:
+
+    setup toolchain env first, then
+    source cross-compile-pi.sh
+
+Cross compile for Android:
+
+    setup Android NDK env first, then
+    source android-configure NDK_PATH
+    make    
+
 If your python binary is in a non-standard location or has a
 non-standard name, run the following instead:
 
@@ -73,11 +84,6 @@ non-standard name, run the following instead:
 Windows:
 
     vcbuild.bat
-
-Cross compile on Raspberry Pi:
-
-    setup toolchain env first, then
-    source cross-compile-pi.sh
 
 ### To run the tests:
 
