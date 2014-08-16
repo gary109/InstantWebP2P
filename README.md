@@ -71,7 +71,7 @@ Cross compile for Android:
 
     setup Android NDK env first, then
     source android-configure NDK_PATH
-    make    
+    make -C out  
 
 If your python binary is in a non-standard location or has a
 non-standard name, run the following instead:

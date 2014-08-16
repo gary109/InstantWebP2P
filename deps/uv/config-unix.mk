@@ -78,7 +78,7 @@ EV_CONFIG=config_android.h
 EIO_CONFIG=config_android.h
 CSTDFLAG += -D_GNU_SOURCE 
 CPPFLAGS += -Isrc/ares/config_android -DLINUX 
-LINKFLAGS+=-ldl -lrt
+LINKFLAGS+=-ldl 
 OBJS += src/unix/linux/linux-core.o \
         src/unix/linux/inotify.o    \
         src/unix/linux/syscalls.o   \
