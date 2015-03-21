@@ -252,7 +252,7 @@ static void uv__process_child_init(uv_process_options_t options,
   
   /////////////////////////////////////////////////////////////////
   // Backport setuid/setgid security issue
-   if (options->flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID)) {
+   if (options.flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID)) {
     /* When dropping privileges from root, the `setgroups` call will
      * remove any extraneous groups. If we don't call this, then
      * even though our uid has dropped, we may still have groups
